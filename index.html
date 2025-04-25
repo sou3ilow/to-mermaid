@@ -1,41 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>Message Viewer</title>
+  <meta charset="UTF-8" />
+  <title>to-mermaid viewer</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <style>
     body {
       font-family: sans-serif;
       padding: 1em;
     }
-    #output {
-      white-space: pre-wrap;
+    .mermaid {
       border: 1px solid #ccc;
+      margin: 1em 0;
       padding: 1em;
       background: #f9f9f9;
     }
   </style>
 </head>
 <body>
-  <h1>Message from ChatGPT</h1>
-  <div id="output">Waiting for message...</div>
+  <h2>Mermaid図一覧</h2>
+  <div id="container"></div>
 
   <script>
-    window.addEventListener("message", (event) => {
-      // セキュリティ対策：オリジン確認（必要なら厳密にする）
-      const allowedOrigins = [
-        "https://chat.openai.com",
-        "https://chatgpt.com"
-      ];
-      if (!allowedOrigins.includes(event.origin)) {
-        console.warn("Blocked message from unknown origin:", event.origin);
-        return;
-      }
+    window.addEventListener("message", function (e) {
+      const code = e.data?.mermaidCode;
+      if (!code) return;
 
-      // メッセージを表示
-      const data = event.data;
-      const output = document.getElementById("output");
-      output.textContent = typeof data === "object" ? JSON.stringify(data, null, 2) : String(data);
+      const container = document.getElementById("container");
+      const block = document.createElement("div");
+      block.className = "mermaid";
+      block.textContent = code;
+      container.appendChild(block);
+
+      mermaid.init(undefined, block);
     });
   </script>
 </body>

@@ -1,1 +1,42 @@
-hello
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Message Viewer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1em;
+    }
+    #output {
+      white-space: pre-wrap;
+      border: 1px solid #ccc;
+      padding: 1em;
+      background: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Message from ChatGPT</h1>
+  <div id="output">Waiting for message...</div>
+
+  <script>
+    window.addEventListener("message", (event) => {
+      // セキュリティ対策：オリジン確認（必要なら厳密にする）
+      const allowedOrigins = [
+        "https://chat.openai.com",
+        "https://chatgpt.com"
+      ];
+      if (!allowedOrigins.includes(event.origin)) {
+        console.warn("Blocked message from unknown origin:", event.origin);
+        return;
+      }
+
+      // メッセージを表示
+      const data = event.data;
+      const output = document.getElementById("output");
+      output.textContent = typeof data === "object" ? JSON.stringify(data, null, 2) : String(data);
+    });
+  </script>
+</body>
+</html>

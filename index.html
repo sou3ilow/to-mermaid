@@ -2,15 +2,16 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>to‑mermaid viewer</title>
+  <title>to-mermaid viewer</title>
 
-  <!-- Mermaid 本体を CDN から読み込み -->
+  <!-- Mermaid 本体 -->
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 
   <style>
     body {
       font-family: sans-serif;
       padding: 1em;
+      transition: background 0.6s ease;
     }
     .mermaid {
       border: 1px solid #ccc;
@@ -25,45 +26,44 @@
   <div id="container"></div>
 
   <script>
-    // Mermaid を初期化（自動描画はオフ）
+    // ===== 背景色を lastModified から決定（パステルカラー） =====
+    (function () {
+      const lm = document.lastModified; // 文字列 e.g., "Mon, 28 Apr 2025 12:34:56 GMT"
+      // 文字列をハッシュ化
+      let hash = 0;
+      for (let i = 0; i < lm.length; i++) {
+        hash = (hash << 5) - hash + lm.charCodeAt(i);
+        hash |= 0; // 32bit 整数化
+      }
+      const hue = (hash >>> 0) % 360; // 0‑359 に収める
+      const pastel = `hsl(${hue} 70% 90%)`; // 彩度70%, 明度90% のパステル
+      document.body.style.background = pastel;
+    })();
+
+    // Mermaid を初期化
     mermaid.initialize({ startOnLoad: false });
 
-    // 許可する送信元オリジン
     const ALLOWED_ORIGINS = [
       "https://chat.openai.com",
       "https://chatgpt.com"
     ];
 
-    /**
-     * postMessage 受信ハンドラ
-     */
     window.addEventListener("message", (e) => {
-      console.log("otrigin", r.origin);
-      // セキュリティ: 送信元チェック
-      if (!ALLOWED_ORIGINS.includes(e.origin)) {
-        console.warn("Blocked message from", e.origin);
-        return;
-      }
-
+      if (!ALLOWED_ORIGINS.includes(e.origin)) return;
       const code = e.data?.mermaidCode;
       if (!code) return;
 
       console.log("受信:", code);
 
-      // 新しい描画ブロックを追加
       const container = document.getElementById("container");
       const block = document.createElement("div");
       block.className = "mermaid";
       block.textContent = code;
       container.appendChild(block);
 
-      // 描画
       mermaid.init(undefined, block);
-
-      // 末尾へスクロールして追加をわかりやすく
       block.scrollIntoView({ behavior: "smooth", block: "end" });
     });
   </script>
 </body>
 </html>
-

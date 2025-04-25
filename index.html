@@ -40,6 +40,8 @@
       document.body.style.background = pastel;
     })();
 
+    console.log("start")
+    
     // Mermaid を初期化
     mermaid.initialize({ startOnLoad: false });
 
@@ -49,6 +51,7 @@
     ];
 
     window.addEventListener("message", (e) => {
+      console.log(e.origin)
       if (!ALLOWED_ORIGINS.includes(e.origin)) return;
       const code = e.data?.mermaidCode;
       if (!code) return;

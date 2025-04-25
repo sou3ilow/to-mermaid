@@ -26,6 +26,8 @@
       const code = e.data?.mermaidCode;
       if (!code) return;
 
+      console.log("rec", code)
+
       const container = document.getElementById("container");
       const block = document.createElement("div");
       block.className = "mermaid";

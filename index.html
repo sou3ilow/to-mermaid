@@ -38,6 +38,7 @@
      * postMessage 受信ハンドラ
      */
     window.addEventListener("message", (e) => {
+      console.log("otrigin", r.origin);
       // セキュリティ: 送信元チェック
       if (!ALLOWED_ORIGINS.includes(e.origin)) {
         console.warn("Blocked message from", e.origin);

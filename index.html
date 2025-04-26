@@ -19,17 +19,6 @@ a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
 
 <hr><div id="container"></div>
 
-<!-- ① ブックマークレット JS を読み込み -->
-<script type="module">
-  import { getBookmarklet } from "./bookmarklet.js";
-
-  // ② 動的に href 設定
-  const link = document.getElementById("bm");
-  link.href = getBookmarklet();
-  console.log("to-mermaid ◀︎ ブックマークレット文字列生成完了", link.href);
-</script>
-
-<!-- 受信・描画ロジック -->
 <script type="module">
   import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
   mermaid.initialize({ startOnLoad:false });
@@ -38,6 +27,8 @@ a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
   (function pastelize () {
     const t = new Date(document.lastModified).getTime();
     const hue = (t / 6e4) % 360;                      // 分単位で変化
+    hue = ( hue * 121 + 47 ) % 360; // randomize
+      
     document.body.style.background = `hsl(${hue}, 70%, 88%)`;
     console.log("to-mermaid ◀︎ lastModified =", document.lastModified,
                 "→ hue", hue);
@@ -53,15 +44,16 @@ a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
     document.getElementById("container").appendChild(div);
     mermaid.run({ nodes:[div] });
   }
-  function renderDot (code) { /* TODO */ }
+  function renderDefault (code) { /* TODO */ }
 
   /* postMessage 受信 */
   window.addEventListener("message", ev => {
     const blocks = ev.data?.blocks; if (!blocks) return;
-    console.log("to-mermaid ◀︎ 受信", blocks.length, "blocks", blocks);
-    blocks.forEach(({ lang, code }) => {
+    console.log("to-mermaid ◀︎ 受信", blocks.length); //, "blocks", blocks);
+    blocks.forEach(({ type, code }) => {
+      console.log("hey", type);
       if (lang === "mermaid")      renderMermaid(code);
-      else if (lang === "dot")     renderDot(code);
+      else      renderDot(code);
     });
   });
 </script>

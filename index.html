@@ -11,7 +11,8 @@ a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
 </head><body>
 
 <h1>to-Mermaid Viewer</h1>
-<p>① このリンクをブックマークバーへドラッグ → ② ChatGPT でクリック</p>
+<p>① このリンク<a href="javascript:(function(){'// to-mermaid v0.2';const U='https://sou3ilow.github.io/to-mermaid/';const W=window.open(U,'toMermaid');if(!W){alert('Popup blocked');return;}function C(){return[...document.querySelectorAll('pre[class^=\"language-\"]')].map(e=>{const c=[...e.classList].find(v=>v.startsWith('language-'))||'';return{lang:c.replace('language-',''),code:e.textContent};});}function S(){W.postMessage({type:'codeBlocks',blocks:C()},U);}S();const O=new MutationObserver(m=>{for(const r of m)for(const n of r.addedNodes){if(n.nodeType!==1)continue;if(n.matches?.('pre[class^=\"language-\"]')||n.querySelector?.('pre[class^=\"language-\"]')){S();return;}}});O.observe(document.body,{childList:true,subtree:true});})();">Install to-Mermaid</a>
+をブックマークバーへドラッグ → ② ChatGPT でクリック</p>
 <!-- ↑ここにミニファイ版リンクを貼り付け -->
 
 <hr><div id="container"></div>

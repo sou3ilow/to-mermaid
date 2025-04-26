@@ -52,7 +52,7 @@ a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
     console.log("to-mermaid ◀︎ 受信", blocks.length); //, "blocks", blocks);
     blocks.forEach(({lang, code}) => {
       if (lang === "mermaid")      renderMermaid(code);
-      else      renderDot(code);
+      else      renderDefault(code);
     });
   });
 </script>

@@ -26,7 +26,7 @@ a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
   /* 背景色を lastModified で決定（パステル） */
   (function pastelize () {
     const t = new Date(document.lastModified).getTime();
-    const hue = (t / 6e4) % 360;                      // 分単位で変化
+    let hue = (t / 6e4) % 360;                      // 分単位で変化
     hue = ( hue * 121 + 47 ) % 360; // randomize
       
     document.body.style.background = `hsl(${hue}, 70%, 88%)`;

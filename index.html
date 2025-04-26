@@ -37,7 +37,7 @@ a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
   // ブックマークレットを読み込んでリンクに設定
   async function getScriptText(url) {
     const response = await fetch(url);
-    if (!response.ok) throw new Error('Failed to fetch script');
+    if (!response.ok) throw new Error('Failed to fetch file');
     const textdata = await response.text();
     return textdata;
   }

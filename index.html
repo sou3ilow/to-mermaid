@@ -15,7 +15,7 @@ a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
 
 <h1>to-Mermaid Viewer</h1>
 <p>① このリンクをブックマークバーへドラッグ → ② ChatGPT でクリック</p>
-<a id="bm">Install to-Mermaid</a>
+<a id="bm">🧜‍♀️to-Mermaid</a>
 
 <hr><div id="container"></div>
 
@@ -33,6 +33,22 @@ a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
     console.log("to-mermaid ◀︎ lastModified =", document.lastModified,
                 "→ hue", hue);
   })();
+
+  // js取得
+  async function getScriptText(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Failed to fetch script');
+  const textdata = await response.text();
+  return textdata;
+}
+
+getScriptText('source.js').then(code => {
+  const bm_code = "javascript:(function(){" + code + "})()";
+  const bm = document.getElementById("bm");
+  bm.href = bm_code;
+});
+
+  
 
   /* 描画関数群 */
   const rendered = new Set();

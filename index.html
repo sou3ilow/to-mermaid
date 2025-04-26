@@ -1,53 +1,68 @@
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8" /><title>to-Mermaid Viewer</title>
+
+<!-- Mermaid -->
 <script type="module"
   src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
+
 <style>
 body{font-family:sans-serif;margin:1rem;}
-#container>.mermaid{margin:1rem 0;}
 a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
      text-decoration:none;border-radius:4px;}
+#container>.mermaid{margin:1rem 0;}
 </style>
 </head><body>
 
 <h1>to-Mermaid Viewer</h1>
-<p>① このリンク<a href="javascript:(function(){'// to-mermaid v0.2';const U='https://sou3ilow.github.io/to-mermaid/';const W=window.open(U,'toMermaid');if(!W){alert('Popup blocked');return;}function C(){return[...document.querySelectorAll('pre[class^=\"language-\"]')].map(e=>{const c=[...e.classList].find(v=>v.startsWith('language-'))||'';return{lang:c.replace('language-',''),code:e.textContent};});}function S(){W.postMessage({type:'codeBlocks',blocks:C()},U);}S();const O=new MutationObserver(m=>{for(const r of m)for(const n of r.addedNodes){if(n.nodeType!==1)continue;if(n.matches?.('pre[class^=\"language-\"]')||n.querySelector?.('pre[class^=\"language-\"]')){S();return;}}});O.observe(document.body,{childList:true,subtree:true});})();">Install to-Mermaid</a>
-をブックマークバーへドラッグ → ② ChatGPT でクリック</p>
-<!-- ↑ここにミニファイ版リンクを貼り付け -->
+<p>① このリンクをブックマークバーへドラッグ → ② ChatGPT でクリック</p>
+<a id="bm">Install to-Mermaid</a>
 
 <hr><div id="container"></div>
 
+<!-- ① ブックマークレット JS を読み込み -->
 <script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-mermaid.initialize({ startOnLoad:false });
+  import { getBookmarklet } from "./bookmarklet.js";
 
-/* ── ★ 更新日時→パステル背景 ★ ── */
-(function pastelize() {
-  const t = new Date(document.lastModified).getTime();
-  const hue = (t / 6e4) % 360;             // 分単位で変化
-  document.body.style.background =
-    `hsl(${hue}, 70%, 90%)`;               // 明度高めでパステル
-})();
+  // ② 動的に href 設定
+  const link = document.getElementById("bm");
+  link.href = getBookmarklet();
+  console.log("to-mermaid ◀︎ ブックマークレット文字列生成完了", link.href);
+</script>
 
-/* ── 描画関数 ── */
-const rendered = new Set();
-function renderMermaid(code){
-  if(rendered.has(code)) return;
-  rendered.add(code);
-  const div=document.createElement("div");
-  div.className="mermaid"; div.textContent=code;
-  document.getElementById("container").appendChild(div);
-  mermaid.run({nodes:[div]});
-}
-/* 今後 dot 等を扱う場合の受け口 */
-function renderDot(code){ /* Placeholder */ }
+<!-- 受信・描画ロジック -->
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({ startOnLoad:false });
 
-window.addEventListener("message",ev=>{
-  const blocks=ev.data?.blocks; if(!blocks) return;
-  blocks.forEach(({lang,code})=>{
-    if(lang==='mermaid')      renderMermaid(code);
-    else if(lang==='dot')     renderDot(code);     // 将来拡張
+  /* 背景色を lastModified で決定（パステル） */
+  (function pastelize () {
+    const t = new Date(document.lastModified).getTime();
+    const hue = (t / 6e4) % 360;                      // 分単位で変化
+    document.body.style.background = `hsl(${hue}, 70%, 88%)`;
+    console.log("to-mermaid ◀︎ lastModified =", document.lastModified,
+                "→ hue", hue);
+  })();
+
+  /* 描画関数群 */
+  const rendered = new Set();
+  function renderMermaid (code) {
+    if (rendered.has(code)) return;
+    rendered.add(code);
+    const div = document.createElement("div");
+    div.className = "mermaid"; div.textContent = code;
+    document.getElementById("container").appendChild(div);
+    mermaid.run({ nodes:[div] });
+  }
+  function renderDot (code) { /* TODO */ }
+
+  /* postMessage 受信 */
+  window.addEventListener("message", ev => {
+    const blocks = ev.data?.blocks; if (!blocks) return;
+    console.log("to-mermaid ◀︎ 受信", blocks.length, "blocks", blocks);
+    blocks.forEach(({ lang, code }) => {
+      if (lang === "mermaid")      renderMermaid(code);
+      else if (lang === "dot")     renderDot(code);
+    });
   });
-});
 </script>
 </body></html>

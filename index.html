@@ -79,16 +79,19 @@ function createBlock(lang, code) {
   content.className = "block-content";
 
   const div = document.createElement("div");
-  div.className = (lang === "mermaid") ? "mermaid" : "plain";
-  div.textContent = code;
-
+  div.className = "plain"; // dummy
+    
   content.appendChild(div);
   block.appendChild(label);
   block.appendChild(content);
   container.appendChild(block);
 
   if (lang === "mermaid") {
+    div.className = "mermaid";
+    div.textContent = code;
     mermaid.run({ nodes: [div] });
+  } else {
+    div.textContent = "not supported";
   }
 
   requestAnimationFrame(() => {

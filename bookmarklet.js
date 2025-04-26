@@ -2,7 +2,7 @@ javascript:(function () {
 "// to-mermaid bookmarklet v0.5 ── 新ブロックのみ送信版";
 
 const TARGET_URL = "https://sou3ilow.github.io/to-mermaid/";
-const SELECTOR   = 'code[class^="whitespace-pre! language-"] span';  "// 抽出セレクタ";
+const SELECTOR   = 'code[class^="whitespace-pre! language-"] > span';  "// 抽出セレクタ";
 const LANG_RE    = /language-([\w-]+)/;                             "// 言語名抽出 RegExp";
 
 const win = window.open(TARGET_URL, "toMermaid");

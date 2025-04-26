@@ -1,72 +1,52 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <title>to-mermaid viewer</title>
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8" /><title>to-Mermaid Viewer</title>
+<script type="module"
+  src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
+<style>
+body{font-family:sans-serif;margin:1rem;}
+#container>.mermaid{margin:1rem 0;}
+a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
+     text-decoration:none;border-radius:4px;}
+</style>
+</head><body>
 
-  <!-- Mermaid 本体 -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<h1>to-Mermaid Viewer</h1>
+<p>① このリンクをブックマークバーへドラッグ → ② ChatGPT でクリック</p>
+<!-- ↑ここにミニファイ版リンクを貼り付け -->
 
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 1em;
-      transition: background 0.6s ease;
-    }
-    .mermaid {
-      border: 1px solid #ccc;
-      margin: 1em 0;
-      padding: 1em;
-      background: #f9f9f9;
-    }
-  </style>
-</head>
-<body>
-  <h2>Mermaid 図一覧</h2>
-  <div id="container"></div>
+<hr><div id="container"></div>
 
-  <script>
-    // ===== 背景色を lastModified から決定（パステルカラー） =====
-    (function () {
-      const lm = document.lastModified; // 文字列 e.g., "Mon, 28 Apr 2025 12:34:56 GMT"
-      // 文字列をハッシュ化
-      let hash = 0;
-      for (let i = 0; i < lm.length; i++) {
-        hash = (hash << 5) - hash + lm.charCodeAt(i);
-        hash |= 0; // 32bit 整数化
-      }
-      const hue = (hash >>> 0) % 360; // 0‑359 に収める
-      const pastel = `hsl(${hue} 70% 90%)`; // 彩度70%, 明度90% のパステル
-      document.body.style.background = pastel;
-    })();
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+mermaid.initialize({ startOnLoad:false });
 
-    console.log("start")
-    
-    // Mermaid を初期化
-    mermaid.initialize({ startOnLoad: false });
+/* ── ★ 更新日時→パステル背景 ★ ── */
+(function pastelize() {
+  const t = new Date(document.lastModified).getTime();
+  const hue = (t / 6e4) % 360;             // 分単位で変化
+  document.body.style.background =
+    `hsl(${hue}, 70%, 90%)`;               // 明度高めでパステル
+})();
 
-    const ALLOWED_ORIGINS = [
-      "https://chat.openai.com",
-      "https://chatgpt.com"
-    ];
+/* ── 描画関数 ── */
+const rendered = new Set();
+function renderMermaid(code){
+  if(rendered.has(code)) return;
+  rendered.add(code);
+  const div=document.createElement("div");
+  div.className="mermaid"; div.textContent=code;
+  document.getElementById("container").appendChild(div);
+  mermaid.run({nodes:[div]});
+}
+/* 今後 dot 等を扱う場合の受け口 */
+function renderDot(code){ /* Placeholder */ }
 
-    window.addEventListener("message", (e) => {
-      console.log(e.origin)
-      if (!ALLOWED_ORIGINS.includes(e.origin)) return;
-      const code = e.data?.mermaidCode;
-      if (!code) return;
-
-      console.log("受信:", code);
-
-      const container = document.getElementById("container");
-      const block = document.createElement("div");
-      block.className = "mermaid";
-      block.textContent = code;
-      container.appendChild(block);
-
-      mermaid.init(undefined, block);
-      block.scrollIntoView({ behavior: "smooth", block: "end" });
-    });
-  </script>
-</body>
-</html>
+window.addEventListener("message",ev=>{
+  const blocks=ev.data?.blocks; if(!blocks) return;
+  blocks.forEach(({lang,code})=>{
+    if(lang==='mermaid')      renderMermaid(code);
+    else if(lang==='dot')     renderDot(code);     // 将来拡張
+  });
+});
+</script>
+</body></html>

@@ -50,8 +50,8 @@ a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
   window.addEventListener("message", ev => {
     const blocks = ev.data?.blocks; if (!blocks) return;
     console.log("to-mermaid ◀︎ 受信", blocks.length); //, "blocks", blocks);
-    blocks.forEach(({ type, code }) => {
-      console.log("hey", type);
+    blocks.forEach((e) => {
+      console.log("hey", e);
       if (lang === "mermaid")      renderMermaid(code);
       else      renderDot(code);
     });

@@ -44,7 +44,9 @@ a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
     document.getElementById("container").appendChild(div);
     mermaid.run({ nodes:[div] });
   }
-  function renderDefault (code) { /* TODO */ }
+  function renderDefault (code) {
+    console.log(lang, " not supported");
+  }
 
   /* postMessage 受信 */
   window.addEventListener("message", ev => {
@@ -52,7 +54,7 @@ a#bm{display:inline-block;padding:.4rem .8rem;background:#0069d9;color:#fff;
     console.log("to-mermaid ◀︎ 受信", blocks.length); //, "blocks", blocks);
     blocks.forEach(({lang, code}) => {
       if (lang === "mermaid")      renderMermaid(code);
-      else      renderDefault(code);
+      else      renderDefault(lang, code);
     });
   });
 </script>

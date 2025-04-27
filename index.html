@@ -109,12 +109,17 @@ function createBlock(lang, code) {
     if ( json["$schema"] === "https://vega.github.io/schema/vega-lite/v5.json" ) {
       label.textContent += " - vega-lite";
       div.textContent = code;
-      vegaEmbed(div, json, {}).then(() => {
-        console.log("to-mermaid ▶︎ Vega-Lite描画完了");
-      }).catch(err => {
-        console.error("to-mermaid ▶︎ Vega-Lite描画失敗", err);
-        label.textContent += " - faild to draw " + e;
-      });
+      try {
+        vegaEmbed(div, json, {}).then(() => {
+          console.log("to-mermaid ▶︎ Vega-Lite描画完了");
+        }).catch(err => {
+          console.error("to-mermaid ▶︎ Vega-Lite描画失敗", err);
+          label.textContent += " - faild to draw " + e;
+        });
+      } catch (e) {
+          console.error("to-mermaid ▶︎ Vega-Lite描画失敗", err);
+          label.textContent += " - faild to draw " + e;
+      }
     } else {
       label.textContent += " - unknown json format.";
     }

@@ -57,8 +57,13 @@ javascript:(function () {
   });
   obs.observe(document.body, { childList: true, subtree: true });
 
+  let lastTitle = document.title;
   const titleObs = new MutationObserver(() => {
-    sendMessage({type: "pageMoved", title: document.title}, ["title changed", document.title]);
+    const newTitle = document.title;
+    if ( newTitle != lastTitle ) {
+      lastTitle = newTitle;
+      sendMessage({type: "pageMoved", title: newTitle}, ["title changed", newTitle]);
+    }
   });
   const titleElem = document.querySelector('title'); 
   titleObs.observe(titleElem, { childList: true });

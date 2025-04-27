@@ -1,6 +1,6 @@
 javascript:(function () {
 "// to-mermaid bookmarklet v0.5 ── 新ブロックのみ送信版";
-const version = "20250427-12:24";
+const version = "BM_VERSION_PLACEHOLDER";
 
 const TARGET_URL = "https://sou3ilow.github.io/to-mermaid/";
 const SELECTOR   = 'code[class^="whitespace-pre! language-"] > span';  "// 抽出セレクタ";

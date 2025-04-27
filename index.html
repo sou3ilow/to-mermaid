@@ -102,6 +102,9 @@ async function createBlock(lang, code) {
   if (rendered.has(code)) return;
   rendered.add(code);
 
+  // dubug
+  console.log(lang, code);
+     
   const container = document.getElementById("container");
   const block = document.createElement("div");
   block.className = "block";

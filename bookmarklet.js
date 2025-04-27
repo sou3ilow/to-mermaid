@@ -1,5 +1,5 @@
 javascript:(function () {
-  "// to-mermaid bookmarklet v0.5 ── 新ブロックのみ送信版";
+  "// to-mermaid bookmarklet";
   const version = "BM_VERSION_PLACEHOLDER";
   
   const TARGET_URL = "https://sou3ilow.github.io/to-mermaid/";

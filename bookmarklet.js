@@ -11,9 +11,16 @@ javascript:(function () {
   const TARGET_URL = "https://sou3ilow.github.io/to-mermaid/";
   const SELECTOR   = 'code[class^="whitespace-pre! language-"] > span';  "// 抽出セレクタ";
   const LANG_RE    = /language-([\w-]+)/;                             "// 言語名抽出 RegExp";
-  const TO         = "*";  
+  const TO         = TARGET_URL;  
     
-  const win = window.open(TARGET_URL, "toMermaid");
+  const w = 800;
+  const h = 600;
+  const x = window.screenX + 100;
+  const y = window.screenY + 100;
+  
+  const opts = `width=${w},height=${h},left=${x},top=${y}`;
+  
+  const win = window.open(TARGET_URL, "toMermaid", opts);
   if (!win) { alert("to-mermaid: Popup blocked"); return; }
   
   const SENT = new Set();   "// 既送信ブロック管理（lang|code ハッシュ）";

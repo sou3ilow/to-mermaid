@@ -103,7 +103,7 @@ function createBlock(lang, code) {
       });
     } catch (e) {
       console.error("to-mermaid ▶︎ Vega-Liteパース失敗", e);
-      div.textContent = "Invalid Vega-Lite JSON";
+      div.textContent = "Invalid Vega-Lite JSON:" + code;
     }
   } else {
     //div.textContent = "not supported";

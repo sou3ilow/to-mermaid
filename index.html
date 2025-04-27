@@ -108,7 +108,7 @@ function createBlock(lang, code) {
     const viz = new Viz();
     viz.renderSVGElement(code).then((elem) => {
       console.error("to-mermaid ▶︎ DOT描画成功");
-      div.appendChild(element); // hack
+      div.appendChild(elem); // hack
     }).catch(error => {
     console.error("to-mermaid ▶︎ DOT描画失敗", error);
   });

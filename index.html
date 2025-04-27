@@ -91,12 +91,12 @@ function createBlock(lang, code) {
 
   if (lang === "mermaid") {
     div.className = "mermaid";
-    div.textContent = code;
+    div.textContent = code; // ?
     mermaid.run({ nodes: [div] });
   } else if (lang === "json") { // vega-lite
     try {
       const spec = JSON.parse(code);  // Vega-LiteはJSONを期待
-      vegaEmbed(div, spec).then(() => {
+      vegaEmbed(div, spec, {}).then(() => {
         console.log("to-mermaid ▶︎ Vega-Lite描画完了");
       }).catch(err => {
         console.error("to-mermaid ▶︎ Vega-Lite描画失敗", err);

@@ -67,9 +67,9 @@ async function getScriptText(url) {
   return await response.text();
 }
 getScriptText('./bookmarklet.js').then(code => {
-  const bm_code = "javascript:(function(){" + code + "})()".replace(
-    "BM_VERSION_PLACEHOLDER", version
-  );
+  const bm_code = "javascript:(function(){" +
+    code.replace("BM_VERSION_PLACEHOLDER", version) + 
+    "})()";
   const bm = document.getElementById("bm");
   bm.href = bm_code;
 });

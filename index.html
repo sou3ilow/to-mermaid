@@ -76,7 +76,7 @@ getScriptText('./bookmarklet.js').then(code => {
 
 // 共通: 成功時にブロックをフェードイン
 function showBlock(block) {
-  block.style.display = "block";
+  //block.style.display = "block";
   requestAnimationFrame(() => {
     block.style.opacity = 1;
     block.style.backgroundColor = "hsl(0, 0%, 98%)";
@@ -94,7 +94,7 @@ async function createBlock(lang, code) {
   const container = document.getElementById("container");
   const block = document.createElement("div");
   block.className = "block";
-  block.style.display = "none";
+  block.style.opscity = 0;
 
   const label = document.createElement("div");
   label.className = "block-label";

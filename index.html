@@ -84,6 +84,17 @@ function showBlock(block) {
   scrollToBottom();
 }
 
+// メッセージブロックを作成する
+async function createMessageBlock(message) {
+  const container = document.getElementById("container");
+  const block = document.createElement("div");
+  block.className = "block";
+  block.style.opacity = 0;
+  block.textContent = message;
+  container.appendChild(block);
+  showBlock(block);
+}
+     
 const rendered = new Set();
 
 // 図ブロックを作成する
@@ -167,18 +178,12 @@ window.addEventListener("message", ev => {
     const bmVersion = ev.data?.version;
     console.log("to-mermaid ◆ 受信 bmVersion", bmVersion);
     if (bmVersion != version) {
-      const block = document.createElement("div");
-      block.className = "block";
-      block.textContent = `Bookmarkletを更新してください。現在：${version} BM:${bmVersion}`;
-      container.appendChild(block);
+      createMessageBlock(`Bookmarkletを更新してください。現在：${version} BM:${bmVersion}`);
     }
   } else if (type === "pageMoved") {
     const title = ev.data?.title;
     console.log("to-mermaid ◆ 受信 pageMoved", title);
-    const block = document.createElement("div");
-    block.className = "block";
-    block.textContent = title;
-    container.appendChild(block);
+    createMessageBlock(title);
   } else if (type === "codeBlocks") {
     const blocks = ev.data?.blocks;
     if (!blocks) return;

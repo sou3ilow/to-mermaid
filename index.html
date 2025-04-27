@@ -59,13 +59,17 @@ mermaid.initialize({ startOnLoad: false });
   console.log("to-mermaid ◆ lastModified =", document.lastModified, "→ hue", hue);
 })();
 
+const version = "20250427-1256";
+  
 async function getScriptText(url) {
   const response = await fetch(url);
   if (!response.ok) throw new Error('Failed to fetch file');
   return await response.text();
 }
 getScriptText('./bookmarklet.js').then(code => {
-  const bm_code = "javascript:(function(){" + code + "})()";
+  const bm_code = "javascript:(function(){" + code + "})()".replace(
+    "BM_VERSION_PLACEHOLDER", version
+  );
   const bm = document.getElementById("bm");
   bm.href = bm_code;
 });
@@ -163,7 +167,15 @@ window.addEventListener("message", ev => {
   if (!type) {
     return;
   } else if ( type === "bmVersion" ) {
-    console.log("to-mermaid ◆ 受信 bookmarklet version:", version);
+    const bmVersion = ev.data?.version;
+    console.log("to-mermaid ◆ 受信 bookmarklet version:", bmVersion);
+    if ( bmVersion != version ) {
+      const container = document.getElementById("container");
+      const block = document.createElement("div");
+      block.className = "block";
+      block.textContent = `Bookmarkletを更新してください。現在：${version} BM:${bmVersion}` 
+      content.appendChild(block);  
+    }
   } else if ( type === "codeBlocks" ) {
     const blocks = ev.data?.blocks;
     if (!blocks) return;

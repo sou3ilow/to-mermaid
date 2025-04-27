@@ -170,26 +170,27 @@ function scrollToBottom() {
 
 window.addEventListener("message", ev => {
   const type = ev.data?.type;
+  const container = document.getElementById("container");
+  
   if (!type) {
     return;
   } else if ( type === "bmVersion" ) {
+    
     const bmVersion = ev.data?.version;
     console.log("to-mermaid ◆ 受信 bookmarklet version:", bmVersion);
     if ( bmVersion != version ) {
-      const container = document.getElementById("container");
       const block = document.createElement("div");
       block.className = "block";
       block.textContent = `Bookmarkletを更新してください。現在：${version} BM:${bmVersion}` 
-      content.appendChild(block);  
+      container.appendChild(block);  
     }
   } else if ( type === "pageMoved") {
     const title = ev.data?.title;
     console.log("to-mermaid ◆ 受信 page title:", title);
-    const container = document.getElementById("container");
     const block = document.createElement("div");
     block.className = "block";
     block.textContent = title; 
-    content.appendChild(block);  
+    container.appendChild(block);  
   
   } else if ( type === "codeBlocks" ) {
     const blocks = ev.data?.blocks;

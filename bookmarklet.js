@@ -55,6 +55,8 @@ ejavascript:(function () {
     if ( newTitle !== "ChatGPT" && newTitle != lastTitle ) {
       sendMessage({type: "pageMoved", title: newTitle}, ["title changed", lastTitle, newTitle]);
       lastTitle = newTitle;
+    } else {
+      console.log(newTitle);
     }
   }
   
@@ -74,7 +76,7 @@ ejavascript:(function () {
     for (const m of muts) for (const n of m.addedNodes) {
       if (n.nodeType !== 1) continue;
       if (n.matches?.(SELECTOR) || n.querySelector?.(SELECTOR)) { sendBlocks(); return; }
-    }
+    } 
   });
   console.log("to-mermaid: waiting new code block..")
   obs.observe(document.body, { childList: true, subtree: true });

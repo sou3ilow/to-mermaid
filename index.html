@@ -94,16 +94,30 @@ function createBlock(lang, code) {
     div.textContent = code; // ?
     mermaid.run({ nodes: [div] });
   } else if (lang === "json") { // vega-lite
+    let spec;
     try {
-      const spec = JSON.parse(code);  // Vega-LiteはJSONを期待
-      vegaEmbed(div, spec, {}).then(() => {
-        console.log("to-mermaid ▶︎ Vega-Lite描画完了");
-      }).catch(err => {
-        console.error("to-mermaid ▶︎ Vega-Lite描画失敗", err);
-      });
+      spec = JSON.parse(code);
     } catch (e) {
-      console.error("to-mermaid ▶︎ Vega-Liteパース失敗", e);
-      div.textContent = "Invalid Vega-Lite JSON:" + code;
+      label.textContent += " - failed to parse json"l
+      div.textContent = code;
+    }
+    
+    if ( spec["$schema"] === "https://vega.github.io/schema/vega-lite/v5.json" ) {
+      label.textContent = "vega-lite";
+      try {
+        vegaEmbed(div, spec, {}).then(() => {
+          console.log("to-mermaid ▶︎ Vega-Lite描画完了");
+        }).catch(err => {
+          console.error("to-mermaid ▶︎ Vega-Lite描画失敗", err);
+        });
+      } catch (e) {
+        console.error("to-mermaid ▶︎ Vega-Liteパース失敗", e);
+        label.textContent += " - " + e;
+        div.textContent = code;
+      }
+    } else {
+      label.textContent += " - unknown json format."
+      
     }
   } else {
     //div.textContent = "not supported";

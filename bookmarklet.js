@@ -58,7 +58,7 @@ javascript:(function () {
   obs.observe(document.body, { childList: true, subtree: true });
 
   const titleObs = new MutationObserver(() => {
-    sendMessage({type: "title", title: document.title}, ["title changed", document.title]);
+    sendMessage({type: "pageMoved", title: document.title}, ["title changed", document.title]);
   });
   const titleElem = document.querySelector('title'); 
   titleObs.observe(titleElem, { childList: true });

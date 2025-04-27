@@ -1,7 +1,7 @@
 javascript:(function () {
   "// to-mermaid bookmarklet";
   if ( window.to_mermaid_bm ) {
-    console.log("to mermaid bm is already running");
+    console.log("to-mermaid bm is already running. reload page if something went wrong.");
     return;
   }
   window.to_mermaid_bm = true;
@@ -14,7 +14,7 @@ javascript:(function () {
   const TO         = "*";  
     
   const win = window.open(TARGET_URL, "toMermaid");
-  if (!win) { alert("Popup blocked"); return; }
+  if (!win) { alert("to-mermaid: Popup blocked"); return; }
   
   const SENT = new Set();   "// 既送信ブロック管理（lang|code ハッシュ）";
   
@@ -47,29 +47,36 @@ javascript:(function () {
     console.log("to-mermaid ▶︎ 送信", ...logMessage);
     win.postMessage(message, TO);
   }
-  
-  "// 初回：1 秒待って送信";
-  setTimeout(()=>{
-     sendMessage({ type: "bmVersion", version }, ["bookmarklet version", version]);
-     sendBlocks();
-   }, 1000);
-  
-  "// DOM 変化を監視し、SELECTOR 出現で send()";
-  let lastTitle = document.title;
-  const obs = new MutationObserver(muts => {
-    // title check
+
+  let lastTitle = "ChatGPT";
+  function checkAndSendTitle() {
+    "// title check";
     const newTitle = document.title;
     if ( newTitle !== "ChatGPT" && newTitle != lastTitle ) {
       sendMessage({type: "pageMoved", title: newTitle}, ["title changed", lastTitle, newTitle]);
       lastTitle = newTitle;
     }
-
-    // check new code blocks
+  }
+  
+  "// 初回：1 秒待って送信";
+  setTimeout(()=>{
+     sendMessage({ type: "bmVersion", version }, ["bookmarklet version", version]);
+     checkAndSendTitle();
+     sendBlocks();
+   }, 1000);
+  
+  "// DOM 変化を監視し、SELECTOR 出現で send()";
+  const obs = new MutationObserver(muts => {
+    
+    checkAndSendTitle();
+    
+    "// check new code blocks";
     for (const m of muts) for (const n of m.addedNodes) {
       if (n.nodeType !== 1) continue;
       if (n.matches?.(SELECTOR) || n.querySelector?.(SELECTOR)) { sendBlocks(); return; }
     }
   });
+  console.log("to-mermaid: waiting new code block..")
   obs.observe(document.body, { childList: true, subtree: true });
 
 })();

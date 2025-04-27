@@ -154,8 +154,8 @@ function createBlock(lang, code) {
   }
 
   if ( isValid ) {
-    //container.appendChild(block);
-      requestAnimationFrame(() => {
+    container.appendChild(block);
+    requestAnimationFrame(() => {
       block.style.opacity = 1;
       block.style.backgroundColor = "hsl(0, 0%, 98%)";
     });

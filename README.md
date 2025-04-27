@@ -5,7 +5,7 @@
 - 表示用に https://sou3ilow.github.io/to-mermaid を使います。
 
 ## Privacy/Security
--  https://sou3ilow.github.io/to-mermaid/index.htmlを使いますが、データはそちらに送信されず、ローカルで受け渡しされます。
+-  https://sou3ilow.github.io/to-mermaid/index.html を使いますが、データはそちらに送信されず、ローカルで受け渡しされます。
 -  送信されたデータは 利用しているViewerのJSに渡します。これらのJSはCDNにあるものを参照していますが、そちらの中身の検証は行っていません。
 
 ### 仕組み

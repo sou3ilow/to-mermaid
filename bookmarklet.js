@@ -41,7 +41,7 @@ let firstTime = true;
 function send () {
   "// バージョンチェック用。viewer側でチェックしてメッセージ;" 
   if ( firstTime ) {
-    win.postMessage({ type: "version", version }, TO);
+    win.postMessage({ type: "bmVersion", version }, TO);
     firstTime = false;
   }
   const blocks = collect();

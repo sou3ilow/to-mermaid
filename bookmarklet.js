@@ -29,12 +29,6 @@ function collect () {
   });
   return results;
 }
-
-function send () {
-  console.log("to-mermaid ▶︎ 送信", blocks.length, "new blocks", blocks);
-  win.postMessage({ type: "codeBlocks", blocks }, "*");
-}
-
   
 "// 新規ブロックのみ送信";
 let firstTime = true;

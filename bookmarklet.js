@@ -61,7 +61,7 @@ javascript:(function () {
   const titleObs = new MutationObserver(() => {
     const newTitle = document.title;
     if ( newTitle === "ChatGPT" ) {
-      "//ignore default title;"
+      "//ignore default title";
       return; 
     } else if ( newTitle != lastTitle ) {
       lastTitle = newTitle;

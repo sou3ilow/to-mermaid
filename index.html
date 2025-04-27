@@ -13,9 +13,10 @@
 <script src="https://cdn.jsdelivr.net/npm/vega-lite@6" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/vega-embed@6" defer></script>
 
-<!-- Markmap -->     
+<!-- Markmap  
 <script src="https://cdn.jsdelivr.net/npm/markmap-autoloader" defer></script>
-
+ -->
+     
 <style>
 body {font-family: sans-serif; margin: 1rem;}
 a#bm {display: inline-block; padding: .2rem .4rem; background: #0069d9; color: #fff;
@@ -193,7 +194,7 @@ async function createCodeBlock(lang, code) {
         throw new Error("Unknown JSON format");
       }
 
-    }  else if (lang === "markdown") { // ==> markmap
+    }  /*else if (lang === "markdown") { // ==> markmap
       
      
        const svg = document.createElement('svg');
@@ -208,7 +209,7 @@ async function createCodeBlock(lang, code) {
        window.markmap.Markmap.create(svg, { features }, root);
        showBlock(block);
          
-     } else {
+     } */else {
       console.error("to-mermaid ▶︎ unknown language", lang);
       throw new Error("Unknown language");
     }

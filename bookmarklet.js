@@ -1,4 +1,4 @@
-javascript:(function () {
+ejavascript:(function () {
   "// to-mermaid bookmarklet";
   if ( window.to_mermaid_bm ) {
     console.log("to-mermaid bm is already running. reload page if something went wrong.");

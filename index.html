@@ -199,6 +199,8 @@ async function createCodeBlock(lang, code) {
        const { root, features } = transformer.transform(code);
      
        const svg = document.createElement('svg');
+       svg.style.width = "100%";
+       svg.style.height = "500px";  // HACK
        div.appendChild(svg);
      
        window.markmap.Markmap.create(svg, { features }, root);

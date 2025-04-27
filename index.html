@@ -4,8 +4,6 @@
 <!-- Mermaid
 <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs" defer></script>
  -->
-
-
  
 <!-- DOT -->
 <script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/viz.js" defere></script>
@@ -137,7 +135,7 @@ async function createBlock(type, message) {
 }
      
 const rendered = new Set();
-
+let mermaidIdCount = 0;
 // コードから図ブロックを作成する
 async function createCodeBlock(lang, code) {
   if (rendered.has(code)) return;
@@ -167,11 +165,13 @@ async function createCodeBlock(lang, code) {
 
   try {
     if (lang === "mermaid") {
-      div.className = "mermaid";
-      div.textContent = code;
-      await mermaid.run({ nodes: [div] });
+      //div.className = "mermaid";
+      //div.textContent = code;
+      //await mermaid.run({ nodes: [div] });
+      const id = `mermaid-${mermaidIdCount++}`;
+      const { svg } = await mermaid.render(id, code)
+      div.innerHTML = svg;
       showBlock(block);
-
     } else if (lang === "dot") {
       const viz = new Viz();
       const elem = await viz.renderSVGElement(code);

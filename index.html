@@ -136,6 +136,7 @@ async function createBlock(type, message) {
      
 const rendered = new Set();
 let mermaidIdCount = 0;
+ 
 // コードから図ブロックを作成する
 async function createCodeBlock(lang, code) {
   if (rendered.has(code)) return;
@@ -168,10 +169,18 @@ async function createCodeBlock(lang, code) {
       //div.className = "mermaid";
       //div.textContent = code;
       //await mermaid.run({ nodes: [div] });
-      const id = `mermaid-${mermaidIdCount++}`;
-      const { svg } = await mermaid.render(id, code)
-      div.innerHTML = svg;
-      showBlock(block);
+     
+       const id = `mermaid-${mermaidIdCount++}`;
+     try {
+       const { svg } = await mermaid.render(id, code)
+       div.innerHTML = svg;
+       showBlock(block);
+     } catch (e) {
+      console.error("rendaring error in mermaid", e);
+      const elem = document.getElementById(id);
+      if ( elem ) elem.remove();
+     }
+      
     } else if (lang === "dot") {
       const viz = new Viz();
       const elem = await viz.renderSVGElement(code);

@@ -151,10 +151,11 @@ function createBlock(lang, code) {
         console.error("to-mermaid ▶︎ Vega-Lite描画失敗", e);
       }
     } else {
-      label.textContent += " - unknown json format.";
+      console.error("to-mermaid ▶︎ unknown json format");
+      
     }
   } else {
-    console.error("to-mermaid ▶︎ unknown language");
+    console.error("to-mermaid ▶︎ unknown language、lang");
   }
 
   // 成功したらアニメーション、そうでなければ削除
@@ -206,7 +207,7 @@ window.addEventListener("message", ev => {
       createBlock(lang, code);
     });
   } else {
-    console.log("to-mermaid ◆ 受信 unknowntype", type);
+    console.log("to-mermaid ◆ 受信 unknown type", type);
   }
 });
 </script>

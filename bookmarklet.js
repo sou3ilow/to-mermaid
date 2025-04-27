@@ -60,7 +60,10 @@ javascript:(function () {
   let lastTitle = document.title;
   const titleObs = new MutationObserver(() => {
     const newTitle = document.title;
-    if ( newTitle != lastTitle ) {
+    if ( newTitle === "ChatGPT" ) {
+      "//ignore default title;"
+      return; 
+    } else if ( newTitle != lastTitle ) {
       lastTitle = newTitle;
       sendMessage({type: "pageMoved", title: newTitle}, ["title changed", newTitle]);
     }

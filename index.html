@@ -2,8 +2,12 @@
 <meta charset="UTF-8" /><title>To-Mermaid Viewer</title>
 
 <!-- Mermaid -->
-<script type="module"
-  src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
+
+<!-- DOT -->
+<script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/viz.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/full.render.js"></script>
+
 <!-- Vega-Embed -->
 <script src="https://cdn.jsdelivr.net/npm/vega@6"></script>
 <script src="https://cdn.jsdelivr.net/npm/vega-lite@6"></script>
@@ -98,6 +102,18 @@ function createBlock(lang, code) {
     div.className = "mermaid";
     div.textContent = code; // ?
     mermaid.run({ nodes: [div] });
+    
+  } else if (lang === "dot") {
+    
+    const viz = new Viz();
+    viz.renderSVGElement(code).then((elem) => {
+      console.error("to-mermaid ▶︎ DOT描画成功");
+      div.appendChild(element); // hack
+    }).catch(error => {
+    console.error("to-mermaid ▶︎ DOT描画失敗", error);
+  });
+
+
   } else if (lang === "json") { // vega-lite
     let json;
     try {

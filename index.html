@@ -162,6 +162,7 @@ function createBlock(lang, code) {
   if ( !isValid ) {
     container.removeChild(block);
   } else {
+    block.style.display = "block";
     requestAnimationFrame(() => {
       block.style.opacity = 1;
       block.style.backgroundColor = "hsl(0, 0%, 98%)";

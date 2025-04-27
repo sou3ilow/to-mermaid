@@ -34,6 +34,25 @@ a#bm {display: inline-block; padding: .4rem .8rem; background: #0069d9; color: #
 .block-content > .mermaid {
   margin-top: 0.5rem;
 }
+
+#container > .pagetitle {
+  background: #e0e0e0;
+  border: 1px solid #bbb;
+  color: #222;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+#container > .message {
+  background: #fff8e1;
+  border: 1px solid #ffcc00;
+  color: #333;
+  font-weight: bold;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
 </style>
 </head><body>
 
@@ -85,10 +104,14 @@ function showBlock(block) {
 }
 
 // メッセージブロックを作成する
-async function createMessageBlock(message) {
+async function createBlock(type, message) {
   const container = document.getElementById("container");
   const block = document.createElement("div");
-  block.className = "block";
+  if ( !(type === "message" || type === "pagetitle") ) {
+    block.className = type;    
+  } else {
+    console.log("invalid type", type);
+  }   
   block.style.opacity = 0;
   block.textContent = message;
   container.appendChild(block);
@@ -97,8 +120,8 @@ async function createMessageBlock(message) {
      
 const rendered = new Set();
 
-// 図ブロックを作成する
-async function createBlock(lang, code) {
+// コードから図ブロックを作成する
+async function createCodeBlock(lang, code) {
   if (rendered.has(code)) return;
   rendered.add(code);
 
@@ -181,18 +204,19 @@ window.addEventListener("message", ev => {
     const bmVersion = ev.data?.version;
     console.log("to-mermaid ◆ 受信 bmVersion", bmVersion);
     if (bmVersion != version) {
-      createMessageBlock(`Bookmarkletを更新してください。現在：${version} BM:${bmVersion}`);
+      createBlock("message", `Bookmarkletを更新してください。現在：${version} BM:${bmVersion}`);
     }
   } else if (type === "pageMoved") {
     const title = ev.data?.title;
     console.log("to-mermaid ◆ 受信 pageMoved", title);
-    createMessageBlock(title);
+    createBlock("pagetitle", title);
+       
   } else if (type === "codeBlocks") {
     const blocks = ev.data?.blocks;
     if (!blocks) return;
     console.log("to-mermaid ◆ 受信 codeBlocks", blocks.length);
     blocks.forEach(({ lang, code }) => {
-      createBlock(lang, code);
+      createCodeBlock(lang, code);
     });
   } else {
     console.log("to-mermaid ◆ 受信 unknown type", type);

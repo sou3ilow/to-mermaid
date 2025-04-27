@@ -2,16 +2,19 @@
 <meta charset="UTF-8" /><title>To-Mermaid Viewer</title>
 
 <!-- Mermaid -->
-<script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs" defer></script>
 
 <!-- DOT -->
-<script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/viz.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/full.render.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/viz.js" defere></script>
+<script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/full.render.js" defer></script>
 
 <!-- Vega-Embed -->
-<script src="https://cdn.jsdelivr.net/npm/vega@6"></script>
-<script src="https://cdn.jsdelivr.net/npm/vega-lite@6"></script>
-<script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega@6" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@6" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6" defer></script>
+
+<!-- Markmap -->     
+<script src="https://cdn.jsdelivr.net/npm/markmap-autoloader" defer></script>
 
 <style>
 body {font-family: sans-serif; margin: 1rem;}
@@ -190,7 +193,18 @@ async function createCodeBlock(lang, code) {
         throw new Error("Unknown JSON format");
       }
 
-    } else {
+    }  else if (lang === "markdown") { // ==> markmap
+       const { Transformer } = window.markmap;
+       const transformer = new Transformer();
+       const { root, features } = transformer.transform(code);
+     
+       const svg = document.createElement('svg');
+       div.appendChild(svg);
+     
+       window.markmap.Markmap.create(svg, { features }, root);
+       showBlock(block);
+         
+     } else {
       console.error("to-mermaid ▶︎ unknown language", lang);
       throw new Error("Unknown language");
     }

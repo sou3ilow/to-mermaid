@@ -171,15 +171,16 @@ async function createCodeBlock(lang, code) {
       //await mermaid.run({ nodes: [div] });
      
        const id = `mermaid-${mermaidIdCount++}`;
-     try {
-       const { svg } = await mermaid.render(id, code)
-       div.innerHTML = svg;
-       showBlock(block);
-     } catch (e) {
-      console.error("rendaring error in mermaid", e);
-      const elem = document.getElementById(id);
-      if ( elem ) elem.remove();
-     }
+       try {
+         const { svg } = await mermaid.render(id, code)
+         div.innerHTML = svg;
+         showBlock(block);
+       } catch (e) {
+         console.error("rendaring error in mermaid", "LABEL", label, "CODE", code, "EXCEPTION", e);
+         const elem = document.getElementById(id);
+         if ( elem ) elem.remove();
+         throw e; // to remove block
+       }
       
     } else if (lang === "dot") {
       const viz = new Viz();

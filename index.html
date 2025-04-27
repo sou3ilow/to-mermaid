@@ -107,6 +107,9 @@ function createBlock(lang, code) {
   if (lang === "mermaid") {
     div.className = "mermaid";
     div.textContent = code; // ?
+
+    // 先にDOMTreeにいれてから、run
+    container.appendChild(block);
     mermaid.run({ nodes: [div] });
     isValid = true; 
     
@@ -115,7 +118,9 @@ function createBlock(lang, code) {
     const viz = new Viz();
     viz.renderSVGElement(code).then((elem) => {
       console.error("to-mermaid ▶︎ DOT描画成功");
-      div.appendChild(elem); // hack
+      // 作成されたelementを追加
+      div.appendChild(elem);
+      container.appendChild(block);
       isValid = true; 
     }).catch(error => {
     console.error("to-mermaid ▶︎ DOT描画失敗", error);
@@ -138,6 +143,8 @@ function createBlock(lang, code) {
       try {
         vegaEmbed(div, json, {}).then(() => {
           console.log("to-mermaid ▶︎ Vega-Lite描画完了");
+          // 追加は後で大丈夫？
+          container.appendChild(block);      
           isValid = true; 
 
         }).catch(err => {

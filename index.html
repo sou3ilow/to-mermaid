@@ -114,10 +114,10 @@ function createBlock(lang, code) {
           console.log("to-mermaid ▶︎ Vega-Lite描画完了");
         }).catch(err => {
           console.error("to-mermaid ▶︎ Vega-Lite描画失敗", err);
-          label.textContent += " - faild to draw " + e;
+          label.textContent += " - faild to draw " + err;
         });
       } catch (e) {
-          console.error("to-mermaid ▶︎ Vega-Lite描画失敗", err);
+          console.error("to-mermaid ▶︎ Vega-Lite描画失敗", e);
           label.textContent += " - faild to draw " + e;
       }
     } else {

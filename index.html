@@ -51,6 +51,7 @@ a#bm {display: inline-block; padding: .4rem .8rem; background: #0069d9; color: #
 import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
 mermaid.initialize({ startOnLoad: false });
 
+// 背景色変更。アップデート確認用。
 (function pastelize() {
   const t = new Date(document.lastModified).getTime();
   let hue = (t / 6e4) % 360;
@@ -60,8 +61,10 @@ mermaid.initialize({ startOnLoad: false });
 })();
 
 const version = "20250427-2109";
-  
+
+// ブックマークスクリプトの読み込み
 async function getScriptText(url) {
+  // キャッシュ禁止
   const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) throw new Error('Failed to fetch file');
   return await response.text();
@@ -75,6 +78,8 @@ getScriptText('./bookmarklet.js').then(code => {
 });
 
 const rendered = new Set();
+
+// 送信されてきた言語、コードから図を作成して追加
 function createBlock(lang, code) {
   if (rendered.has(code)) return;
   rendered.add(code);
@@ -83,6 +88,7 @@ function createBlock(lang, code) {
 
   const block = document.createElement("div");
   block.className = "block";
+  block.style.display = "hide"; // 最初消しておく
 
   const label = document.createElement("div");
   label.className = "block-label";
@@ -93,23 +99,17 @@ function createBlock(lang, code) {
 
   const div = document.createElement("div");
   div.className = "plain"; // dummy
-
-  //original div = document.createElement("div"); // original
-  //original.textContent = code; // 保存しておく。
     
   content.appendChild(div);
   block.appendChild(label);
   block.appendChild(content);
-  //container.appendChild(block);
+  container.appendChild(block);
 
   let isValid = false;
   
   if (lang === "mermaid") {
     div.className = "mermaid";
     div.textContent = code; // ?
-
-    // 先にDOMTreeにいれてから、run
-    container.appendChild(block);
     mermaid.run({ nodes: [div] });
     isValid = true; 
     
@@ -120,10 +120,9 @@ function createBlock(lang, code) {
       console.error("to-mermaid ▶︎ DOT描画成功");
       // 作成されたelementを追加
       div.appendChild(elem);
-      container.appendChild(block);
       isValid = true; 
     }).catch(error => {
-    console.error("to-mermaid ▶︎ DOT描画失敗", error);
+      console.error("to-mermaid ▶︎ DOT描画失敗", error);
   });
 
 
@@ -143,8 +142,6 @@ function createBlock(lang, code) {
       try {
         vegaEmbed(div, json, {}).then(() => {
           console.log("to-mermaid ▶︎ Vega-Lite描画完了");
-          // 追加は後で大丈夫？
-          container.appendChild(block);      
           isValid = true; 
 
         }).catch(err => {
@@ -160,8 +157,10 @@ function createBlock(lang, code) {
     console.error("to-mermaid ▶︎ unknown language");
   }
 
-  if ( isValid ) {
-    container.appendChild(block);
+  // 成功したらアニメーション、そうでなければ削除
+  if ( !isValid ) {
+    container.removeChild(block);
+  } else {
     requestAnimationFrame(() => {
       block.style.opacity = 1;
       block.style.backgroundColor = "hsl(0, 0%, 98%)";

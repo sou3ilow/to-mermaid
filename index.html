@@ -159,12 +159,21 @@ function scrollToBottom() {
 }
 
 window.addEventListener("message", ev => {
-  const blocks = ev.data?.blocks;
-  if (!blocks) return;
-  console.log("to-mermaid ◆ 受信", blocks.length);
-  blocks.forEach(({ lang, code }) => {
-    createBlock(lang, code);
-  });
+  const type = ev.data?.type;
+  if (!type) {
+    return;
+  } else if ( type === "bmVersion" ) {
+    console.log("to-mermaid ◆ 受信 bookmarklet version:", version);
+  } else if ( type === "codeBlocks" ) {
+    const blocks = ev.data?.blocks;
+    if (!blocks) return;
+    console.log("to-mermaid ◆ 受信 ", blocks.length);
+    blocks.forEach(({ lang, code }) => {
+      createBlock(lang, code);
+    });
+  } else {
+    console.log("to-mermaid ◆ 受信 unknowntype", type);
+  }
 });
 </script>
 

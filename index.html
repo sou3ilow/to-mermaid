@@ -1,25 +1,13 @@
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8" /><title>To-Mermaid Viewer</title>
 
-<!-- Mermaid -->
-<script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
-
-<!-- DOT -->
-<script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/viz.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/full.render.js"></script>
-
-<!-- Vega-Embed -->
-<script src="https://cdn.jsdelivr.net/npm/vega@6"></script>
-<script src="https://cdn.jsdelivr.net/npm/vega-lite@6"></script>
-<script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
-  
 <style>
 body {font-family: sans-serif; margin: 1rem;}
 a#bm {display: inline-block; padding: .4rem .8rem; background: #0069d9; color: #fff;
      text-decoration: none; border-radius: 4px;}
 #container > .block {
   border: 1px solid #ccc;
-  border-radius: 0.5rem;
+  border-radius: 1rem;
   margin: 1rem 0;
   padding: 1rem;
   background: white;
@@ -38,27 +26,69 @@ a#bm {display: inline-block; padding: .4rem .8rem; background: #0069d9; color: #
 </head><body>
 
 <h1>To-Mermaid Viewer</h1>
-使い方
-  <ol>
-  <li>このリンクを<a id="bm">🧜‍♀️to-Mermaid🧜‍♀️</a>ブックマークバーへドラッグしてブックマークレットを追加。</li>
-  <li>MermaidコードのあるChatGPTチャットでブックマークレットをクリック。</li>
+<ol>
+  <li>このリンクをブックマークバーへドラッグ <a id="bm">🧜‍♀️to-Mermaid🧜‍♀️</a></li>
+  <li>MermaidコードのあるChatGPTチャットでクリック</li>
+  <li>新しいウィンドウが開いて図を表示。以降はコード追加されるたびに図も追加。</li>
 </ol>
-新しいウィンドウが開いてMermaidコードを図に変換して表示します。以降はコード追加されるたびに図も追加されます。
 
 <hr><div id="container"></div>
 
 <script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-mermaid.initialize({ startOnLoad: false });
+// 利用するスクリプトURLを言語別にまとめる
+const scripts = {
+  "mermaid": ["https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"],
+  "dot": [
+    "https://cdn.jsdelivr.net/npm/viz.js@2.1.2/viz.js",
+    "https://cdn.jsdelivr.net/npm/viz.js@2.1.2/full.render.js"
+  ],
+  "vega-lite": [
+    "https://cdn.jsdelivr.net/npm/vega@6",
+    "https://cdn.jsdelivr.net/npm/vega-lite@6",
+    "https://cdn.jsdelivr.net/npm/vega-embed@6"
+  ]
+};
 
+// 読み込み済み言語を記録
+const loaded = {};
+
+// 必要なライブラリを動的にロード
+async function ensure(lang) {
+  if (loaded[lang]) return;
+
+  if (lang === "mermaid") {
+    // mermaidはimportで読み込む
+    const mermaid = await import(scripts["mermaid"][0]);
+    mermaid.initialize({ startOnLoad: false });
+    window.mermaid = mermaid;
+    loaded[lang] = true;
+    console.log("Mermaid読み込み完了");
+  } else if (lang === "dot" || lang === "vega-lite") {
+    // dot, vega-liteはscriptタグで読み込む
+    await Promise.all(scripts[lang].map(src => new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    })));
+    loaded[lang] = true;
+    console.log(`${lang}関連読み込み完了`);
+  } else {
+    // サポート外の言語ならエラー表示
+    console.error(`Unsupported language for loading: ${lang}`);
+  }
+}
+
+// ページの背景色をlastModified由来でランダム決定
 (function pastelize() {
   const t = new Date(document.lastModified).getTime();
   let hue = (t / 6e4) % 360;
   hue = (hue * 121 + 47) % 360;
   document.body.style.background = `hsl(${hue}, 70%, 88%)`;
-  console.log("to-mermaid ◆ lastModified =", document.lastModified, "→ hue", hue);
 })();
 
+// ブックマークレットコードを動的にセット
 async function getScriptText(url) {
   const response = await fetch(url);
   if (!response.ok) throw new Error('Failed to fetch file');
@@ -70,8 +100,11 @@ getScriptText('./bookmarklet.js').then(code => {
   bm.href = bm_code;
 });
 
+// 図を一意に管理するためのセット
 const rendered = new Set();
-function createBlock(lang, code) {
+
+// 図ブロックを作成する
+async function createBlock(lang, code) {
   if (rendered.has(code)) return;
   rendered.add(code);
 
@@ -88,80 +121,53 @@ function createBlock(lang, code) {
   content.className = "block-content";
 
   const div = document.createElement("div");
-  div.className = "plain"; // dummy
+  div.className = (lang === "mermaid" || lang === "vega-lite" || lang === "dot") ? lang : "plain";
 
-  //original div = document.createElement("div"); // original
-  //original.textContent = code; // 保存しておく。
-    
   content.appendChild(div);
   block.appendChild(label);
   block.appendChild(content);
   container.appendChild(block);
 
+  await ensure(lang);
+
   if (lang === "mermaid") {
-    div.className = "mermaid";
-    div.textContent = code; // ?
-    mermaid.run({ nodes: [div] });
-    
-  } else if (lang === "dot") {
-    
-    const viz = new Viz();
-    viz.renderSVGElement(code).then((elem) => {
-      console.error("to-mermaid ▶︎ DOT描画成功");
-      div.appendChild(elem); // hack
-    }).catch(error => {
-    console.error("to-mermaid ▶︎ DOT描画失敗", error);
-  });
-
-
-  } else if (lang === "json") { // vega-lite
-    let json;
+    window.mermaid.run({ nodes: [div] });
+  } else if (lang === "vega-lite") {
     try {
-      json = JSON.parse(code);
+      const spec = JSON.parse(code);
+      vegaEmbed(div, spec, {});
     } catch (e) {
-      console.error("to-mermaid ▶︎ JSONパース失敗", e);
-      label.textContent += " - faild to parse " + e;
-      div.textContent = code;
+      console.error("Vega-Liteパース失敗", e);
+      div.textContent = "Invalid Vega-Lite JSON";
     }
-    
-    if ( json["$schema"] === "https://vega.github.io/schema/vega-lite/v5.json" ) {
-      label.textContent += " - vega-lite";
-      div.textContent = code;
-      try {
-        vegaEmbed(div, json, {}).then(() => {
-          console.log("to-mermaid ▶︎ Vega-Lite描画完了");
-        }).catch(err => {
-          console.error("to-mermaid ▶︎ Vega-Lite描画失敗", err);
-          label.textContent += " - faild to draw " + err;
-        });
-      } catch (e) {
-          console.error("to-mermaid ▶︎ Vega-Lite描画失敗", e);
-          label.textContent += " - faild to draw " + e;
-      }
-    } else {
-      label.textContent += " - unknown json format.";
-    }
+  } else if (lang === "dot") {
+    const viz = new Viz();
+    viz.renderSVGElement(code)
+      .then(svg => div.appendChild(svg))
+      .catch(err => console.error("DOT描画失敗", err));
   } else {
-    //div.textContent = "not supported";
-    label.textContent += " - not supported"
+    div.textContent = code;
   }
 
+  // フェードインアニメーション
   requestAnimationFrame(() => {
     block.style.opacity = 1;
     block.style.backgroundColor = "hsl(0, 0%, 98%)";
   });
 
+  // 最下部に自動スクロール
   scrollToBottom();
 }
 
+// ページ最下部へスクロール
 function scrollToBottom() {
   window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
 }
 
+// postMessage受信ハンドラ
 window.addEventListener("message", ev => {
   const blocks = ev.data?.blocks;
   if (!blocks) return;
-  console.log("to-mermaid ◆ 受信", blocks.length);
   blocks.forEach(({ lang, code }) => {
     createBlock(lang, code);
   });

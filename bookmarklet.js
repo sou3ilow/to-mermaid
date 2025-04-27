@@ -78,7 +78,7 @@ javascript:(function () {
       if (n.matches?.(SELECTOR) || n.querySelector?.(SELECTOR)) { sendBlocks(); return; }
     } 
   });
-  console.log("to-mermaid: waiting new code block..")
+  console.log("to-mermaid: waiting new code block..");
   obs.observe(document.body, { childList: true, subtree: true });
 
 })();

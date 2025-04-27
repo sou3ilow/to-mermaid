@@ -59,7 +59,7 @@ mermaid.initialize({ startOnLoad: false });
   console.log("to-mermaid ◆ lastModified =", document.lastModified, "→ hue", hue);
 })();
 
-const version = "20250427-2109";
+const version = "20250427-2200";
 
 async function getScriptText(url) {
   const response = await fetch(url, { cache: "no-store" });
@@ -165,7 +165,7 @@ window.addEventListener("message", ev => {
 
   if (type === "bmVersion") {
     const bmVersion = ev.data?.version;
-    console.log("to-mermaid ◆ 受信 bookmarklet version:", bmVersion);
+    console.log("to-mermaid ◆ 受信 bmVersion", bmVersion);
     if (bmVersion != version) {
       const block = document.createElement("div");
       block.className = "block";
@@ -174,7 +174,7 @@ window.addEventListener("message", ev => {
     }
   } else if (type === "pageMoved") {
     const title = ev.data?.title;
-    console.log("to-mermaid ◆ 受信 page title:", title);
+    console.log("to-mermaid ◆ 受信 pageMoved", title);
     const block = document.createElement("div");
     block.className = "block";
     block.textContent = title;
@@ -182,7 +182,7 @@ window.addEventListener("message", ev => {
   } else if (type === "codeBlocks") {
     const blocks = ev.data?.blocks;
     if (!blocks) return;
-    console.log("to-mermaid ◆ 受信", blocks.length);
+    console.log("to-mermaid ◆ 受信 codeBlocks", blocks.length);
     blocks.forEach(({ lang, code }) => {
       createBlock(lang, code);
     });

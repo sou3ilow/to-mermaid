@@ -39,7 +39,7 @@ function send () {
 "// 新規ブロックのみ送信";
 let firstTime = true;
 function send () {
-  "// バージョンチェック用。viewer側でチェックしてメッセージ;" 
+  "// バージョンチェック用。viewer側でチェックしてメッセージ"; 
   if ( firstTime ) {
     win.postMessage({ type: "bmVersion", version }, TO);
     firstTime = false;

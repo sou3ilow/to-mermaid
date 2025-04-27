@@ -1,10 +1,9 @@
 javascript:(function () {
   "// to-mermaid bookmarklet";
-  if ( window.to_mermaid_bm ) {
-    console.log("to-mermaid bm is already running. reload page if something went wrong.");
-    return;
+  if ( window.to_mermaid_obs ) {
+    window.to_mermaid_obs.disconnect();
+    delete window.to_mermaid_obs;
   }
-  window.to_mermaid_bm = true;
   
   const version = "BM_VERSION_PLACEHOLDER";
   
@@ -13,7 +12,7 @@ javascript:(function () {
   const LANG_RE    = /language-([\w-]+)/;                             "// 言語名抽出 RegExp";
   const TO         = TARGET_URL;  
     
-  const w = 800;
+  const w = 600;
   const h = 600;
   const x = window.screenX + 100;
   const y = window.screenY + 100;
@@ -75,7 +74,7 @@ javascript:(function () {
    }, 1000);
   
   "// DOM 変化を監視し、SELECTOR 出現で send()";
-  const obs = new MutationObserver(muts => {
+    window.to_mermaid_obs = new MutationObserver(muts => {
     
     checkAndSendTitle();
     
@@ -86,6 +85,6 @@ javascript:(function () {
     } 
   });
   console.log("to-mermaid: waiting new code block..");
-  obs.observe(document.body, { childList: true, subtree: true });
+  window.to_mermaid_obs.observe(document.body, { childList: true, subtree: true });
 
 })();

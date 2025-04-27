@@ -4,6 +4,8 @@
 <!-- Mermaid -->
 <script type="module"
   src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
+<!-- Vega-Embed -->
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
 
 <style>
 body {font-family: sans-serif; margin: 1rem;}
@@ -91,6 +93,18 @@ function createBlock(lang, code) {
     div.className = "mermaid";
     div.textContent = code;
     mermaid.run({ nodes: [div] });
+  } else if (lang === "json") { // vega-lite
+    try {
+      const spec = JSON.parse(code);  // Vega-LiteはJSONを期待
+      vegaEmbed(div, spec).then(() => {
+        console.log("to-mermaid ▶︎ Vega-Lite描画完了");
+      }).catch(err => {
+        console.error("to-mermaid ▶︎ Vega-Lite描画失敗", err);
+      });
+    } catch (e) {
+      console.error("to-mermaid ▶︎ Vega-Liteパース失敗", e);
+      div.textContent = "Invalid Vega-Lite JSON";
+    }
   } else {
     //div.textContent = "not supported";
     label.textContent += " - not supported"

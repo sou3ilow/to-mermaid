@@ -100,12 +100,15 @@ function createBlock(lang, code) {
   content.appendChild(div);
   block.appendChild(label);
   block.appendChild(content);
-  container.appendChild(block);
+  //container.appendChild(block);
 
+  let isValid = false;
+  
   if (lang === "mermaid") {
     div.className = "mermaid";
     div.textContent = code; // ?
     mermaid.run({ nodes: [div] });
+    isValid = true; 
     
   } else if (lang === "dot") {
     
@@ -113,6 +116,7 @@ function createBlock(lang, code) {
     viz.renderSVGElement(code).then((elem) => {
       console.error("to-mermaid ▶︎ DOT描画成功");
       div.appendChild(elem); // hack
+      isValid = true; 
     }).catch(error => {
     console.error("to-mermaid ▶︎ DOT描画失敗", error);
   });
@@ -134,28 +138,30 @@ function createBlock(lang, code) {
       try {
         vegaEmbed(div, json, {}).then(() => {
           console.log("to-mermaid ▶︎ Vega-Lite描画完了");
+          isValid = true; 
+
         }).catch(err => {
           console.error("to-mermaid ▶︎ Vega-Lite描画失敗", err);
-          label.textContent += " - faild to draw " + err;
         });
       } catch (e) {
-          console.error("to-mermaid ▶︎ Vega-Lite描画失敗", e);
-          label.textContent += " - faild to draw " + e;
+        console.error("to-mermaid ▶︎ Vega-Lite描画失敗", e);
       }
     } else {
       label.textContent += " - unknown json format.";
     }
   } else {
-    //div.textContent = "not supported";
-    label.textContent += " - not supported"
+    console.error("to-mermaid ▶︎ unknown language");
   }
 
-  requestAnimationFrame(() => {
-    block.style.opacity = 1;
-    block.style.backgroundColor = "hsl(0, 0%, 98%)";
-  });
-
-  scrollToBottom();
+  if ( isValid ) {
+    //container.appendChild(block);
+      requestAnimationFrame(() => {
+      block.style.opacity = 1;
+      block.style.backgroundColor = "hsl(0, 0%, 98%)";
+    });
+  
+    scrollToBottom();
+  }
 }
 
 function scrollToBottom() {

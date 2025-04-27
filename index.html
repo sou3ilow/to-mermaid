@@ -107,7 +107,9 @@ function showBlock(block) {
 async function createBlock(type, message) {
   const container = document.getElementById("container");
   const block = document.createElement("div");
-  if ( !(type === "message" || type === "pagetitle") ) {
+
+  const allowed = ["message", "pagetitle"];
+  if ( allowed.includes(type) ) {
     block.className = type;    
   } else {
     console.log("invalid type", type);

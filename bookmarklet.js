@@ -64,8 +64,8 @@ javascript:(function () {
       "//ignore default title";
       return; 
     } else if ( newTitle != lastTitle ) {
+      sendMessage({type: "pageMoved", title: newTitle}, ["title changed", lastTitle, newTitle]);
       lastTitle = newTitle;
-      sendMessage({type: "pageMoved", title: newTitle}, ["title changed", newTitle]);
     }
   });
   const titleElem = document.querySelector('title'); 

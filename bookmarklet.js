@@ -1,5 +1,11 @@
 javascript:(function () {
   "// to-mermaid bookmarklet";
+  if ( window.to_mermaid_bm ) {
+    console.log("to mermaid bm is already running");
+    return;
+  }
+  window.to_mermaid_bm = true;
+  
   const version = "BM_VERSION_PLACEHOLDER";
   
   const TARGET_URL = "https://sou3ilow.github.io/to-mermaid/";
@@ -49,7 +55,16 @@ javascript:(function () {
    }, 1000);
   
   "// DOM 変化を監視し、SELECTOR 出現で send()";
+  let lastTitle = document.title;
   const obs = new MutationObserver(muts => {
+    // title check
+    const newTitle = document.title;
+    if ( newTitle !== "ChatGPT" && newTitle != lastTitle ) {
+      sendMessage({type: "pageMoved", title: newTitle}, ["title changed", lastTitle, newTitle]);
+      lastTitle = newTitle;
+    }
+
+    // check new code blocks
     for (const m of muts) for (const n of m.addedNodes) {
       if (n.nodeType !== 1) continue;
       if (n.matches?.(SELECTOR) || n.querySelector?.(SELECTOR)) { sendBlocks(); return; }
@@ -57,17 +72,4 @@ javascript:(function () {
   });
   obs.observe(document.body, { childList: true, subtree: true });
 
-  let lastTitle = document.title;
-  const titleObs = new MutationObserver(() => {
-    const newTitle = document.title;
-    if ( newTitle === "ChatGPT" ) {
-      "//ignore default title";
-      return; 
-    } else if ( newTitle != lastTitle ) {
-      sendMessage({type: "pageMoved", title: newTitle}, ["title changed", lastTitle, newTitle]);
-      lastTitle = newTitle;
-    }
-  });
-  const titleElem = document.querySelector('title'); 
-  titleObs.observe(titleElem, { childList: true });
 })();

@@ -83,6 +83,9 @@ function createBlock(lang, code) {
 
   const div = document.createElement("div");
   div.className = "plain"; // dummy
+
+  //original div = document.createElement("div"); // original
+  //original.textContent = code; // 保存しておく。
     
   content.appendChild(div);
   block.appendChild(label);
@@ -94,28 +97,24 @@ function createBlock(lang, code) {
     div.textContent = code; // ?
     mermaid.run({ nodes: [div] });
   } else if (lang === "json") { // vega-lite
-    let spec;
+    let json;
     try {
-      spec = JSON.parse(code);
+      json = JSON.parse(code);
     } catch (e) {
-      label.textContent += " - failed to parse json";
+      console.error("to-mermaid ▶︎ JSONパース失敗", e);
+      label.textContent += " - faild to parse " + e;
       div.textContent = code;
     }
     
-    if ( spec["$schema"] === "https://vega.github.io/schema/vega-lite/v5.json" ) {
+    if ( json["$schema"] === "https://vega.github.io/schema/vega-lite/v5.json" ) {
       label.textContent += " - vega-lite";
-      try {
-        div.textContent = code;
-        vegaEmbed(div, spec, {}).then(() => {
-          console.log("to-mermaid ▶︎ Vega-Lite描画完了");
-        }).catch(err => {
-          console.error("to-mermaid ▶︎ Vega-Lite描画失敗", err);
-        });
-      } catch (e) {
-        console.error("to-mermaid ▶︎ Vega-Liteパース失敗", e);
-        label.textContent += " - " + e;
-        //div.textContent = code;
-      }
+      div.textContent = code;
+      vegaEmbed(div, json, {}).then(() => {
+        console.log("to-mermaid ▶︎ Vega-Lite描画完了");
+      }).catch(err => {
+        console.error("to-mermaid ▶︎ Vega-Lite描画失敗", err);
+        label.textContent += " - faild to draw " + e;
+      });
     } else {
       label.textContent += " - unknown json format.";
     }

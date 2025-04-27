@@ -1,10 +1,12 @@
 javascript:(function () {
 "// to-mermaid bookmarklet v0.5 ── 新ブロックのみ送信版";
+const version = "20250427-12:24";
 
 const TARGET_URL = "https://sou3ilow.github.io/to-mermaid/";
 const SELECTOR   = 'code[class^="whitespace-pre! language-"] > span';  "// 抽出セレクタ";
 const LANG_RE    = /language-([\w-]+)/;                             "// 言語名抽出 RegExp";
-
+const TO         = "*";  
+  
 const win = window.open(TARGET_URL, "toMermaid");
 if (!win) { alert("Popup blocked"); return; }
 
@@ -28,12 +30,24 @@ function collect () {
   return results;
 }
 
-"// 新規ブロックのみ送信";
 function send () {
+  console.log("to-mermaid ▶︎ 送信", blocks.length, "new blocks", blocks);
+  win.postMessage({ type: "codeBlocks", blocks }, "*");
+}
+
+  
+"// 新規ブロックのみ送信";
+let firstTime = true;
+function send () {
+  "// バージョンチェック用。viewer側でチェックしてメッセージ;" 
+  if ( firstTime ) {
+    win.postMessage({ type: "version", version }, TO);
+    firstTime = false;
+  }
   const blocks = collect();
   if (!blocks.length) return;             "// 送るものが無ければ何もしない";
   console.log("to-mermaid ▶︎ 送信", blocks.length, "new blocks", blocks);
-  win.postMessage({ type: "codeBlocks", blocks }, "*");
+  win.postMessage({ type: "codeBlocks", blocks }, TO);
 }
 
 "// 初回：1 秒待って送信";

@@ -194,14 +194,16 @@ async function createCodeBlock(lang, code) {
       }
 
     }  else if (lang === "markdown") { // ==> markmap
-       const { Transformer } = window.markmap;
-       const transformer = new Transformer();
-       const { root, features } = transformer.transform(code);
+      
      
        const svg = document.createElement('svg');
        svg.style.width = "100%";
        svg.style.height = "500px";  // HACK
        div.appendChild(svg);
+         
+       const { Transformer } = window.markmap;
+       const transformer = new Transformer();
+       const { root, features } = transformer.transform(code);
      
        window.markmap.Markmap.create(svg, { features }, root);
        showBlock(block);

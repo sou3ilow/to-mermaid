@@ -127,7 +127,7 @@ mermaid.initialize({ startOnLoad: false });
   console.log("to-mermaid ◆ lastModified =", document.lastModified, "→ hue", hue);
 })();
 
-const version = "20250428-0000";
+const version = "20250502-2222";
 
 
 document.getElementById("show-failed").addEventListener("change", function () {
@@ -292,6 +292,7 @@ async function createCodeBlock(lang, code) {
 
     }  else if (lang === "markdown") { // ==> markmap
 
+      label.textContent += " - markmap";
       div.className = "markmap";
       const pre = document.createElement("pre");
       const codeEl = document.createElement("code");

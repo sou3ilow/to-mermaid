@@ -84,6 +84,7 @@ a#bm {display: inline-block; padding: .2rem .4rem; background: #0069d9; color: #
 import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/+esm";
 mermaid.initialize({ startOnLoad: false });
 
+// 背景変更 debug用
 (function pastelize() {
   const t = new Date(document.lastModified).getTime();
   let hue = (t / 6e4) % 360;
@@ -94,6 +95,7 @@ mermaid.initialize({ startOnLoad: false });
 
 const version = "20250428-0000";
 
+// ブックマークレットのソースを取得して、リンクに設定
 async function getScriptText(url) {
   const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) throw new Error('Failed to fetch file');
@@ -108,13 +110,19 @@ getScriptText('./bookmarklet.js').then(code => {
 });
 
 // 共通: 成功時にブロックをフェードイン
-function showBlock(block) {
+function showBlock(block, success = true) {
   //block.style.display = "block";
-  requestAnimationFrame(() => {
+  if ( success ) {
+    requestAnimationFrame(() => {
+      block.style.opacity = 1;
+      block.style.backgroundColor = "hsl(0, 0%, 98%)";
+    });
+    scrollToBottom();
+  } else {
+    //block.display = "none";
     block.style.opacity = 1;
     block.style.backgroundColor = "hsl(0, 0%, 98%)";
-  });
-  scrollToBottom();
+  }
 }
 
 // メッセージブロックを作成する
@@ -136,19 +144,24 @@ async function createBlock(type, message) {
      
 const rendered = new Set();
 let mermaidIdCount = 0;
- 
+
+let codeIdCount = 0;
+
 // コードから図ブロックを作成する
 async function createCodeBlock(lang, code) {
   if (rendered.has(code)) return;
   rendered.add(code);
 
   // dubug
-  console.log(lang, code);
+  //console.log(lang, code);
      
   const container = document.getElementById("container");
   const block = document.createElement("div");
   block.className = "block";
   block.style.opacity = 0;
+  block.id = `block-${codeIdCount++}`;
+  block.dataset.lang = lang; // backup
+  block.dataset.code = code; // backup
 
   const label = document.createElement("div");
   label.className = "block-label";
@@ -163,20 +176,32 @@ async function createCodeBlock(lang, code) {
   block.appendChild(label);
   block.appendChild(content);
   container.appendChild(block);
+  /*
+   container
+   [
+    block
+      label
+      content
+        div
+    ]
+  */
+
 
   try {
     if (lang === "mermaid") {
-      //div.className = "mermaid";
-      //div.textContent = code;
-      //await mermaid.run({ nodes: [div] });
-     
+    
+      // renderを呼ぶとDOMに一時的なエレメントを作成し、できたsvgが返される。
+      // 途中で失敗すると、DOMに一時エレメントが残ったままになるので、IDをユニークにして削除処理する。
        const id = `mermaid-${mermaidIdCount++}`;
        try {
          const { svg } = await mermaid.render(id, code)
          div.innerHTML = svg;
-         showBlock(block);
        } catch (e) {
-         console.error("rendaring error in mermaid", "LABEL", label, "CODE", code, "EXCEPTION", e);
+         console.error("rendaring error in mermaid");
+        label.textContent += " - rendaring error";
+        div.textContent = e;
+        div.style.whiteSpace = "pre";
+
          const elem = document.getElementById(id);
          if ( elem ) elem.remove();
          throw e; // to remove block
@@ -186,26 +211,37 @@ async function createCodeBlock(lang, code) {
       const viz = new Viz();
       const elem = await viz.renderSVGElement(code);
       div.appendChild(elem);
-      showBlock(block);
 
     } else if (lang === "json") {
+
       let json;
       try {
         json = JSON.parse(code);
       } catch (e) {
-        console.error("to-mermaid ▶︎ JSONパース失敗", e);
-        throw e;
+        console.error("to-mermaid:︎ failed to parse");
+        div.style.whiteSpase = "pre";
+        div.textContent = code;
+        label.textContent += " - failed to parse";
+        throw new Error("Failed to parse JSON");
       }
 
-      if (json["$schema"] === "https://vega.github.io/schema/vega-lite/v5.json") {
+      const schema = json["$schema"];
+      if ( !schema ) {
+        console.error("to-mermaid: json does not have $schema");
+        console.debug(code);
+        label.textContent += " - no $schema provided";
+        throw new Error("JSON does not have $schema");
+
+      // vegalite
+      } else if (schema === "https://vega.github.io/schema/vega-lite/v5.json") {
         label.textContent += " - vega-lite";
         div.textContent = code;
         await vegaEmbed(div, json, {});
-        console.log("to-mermaid ▶︎ Vega-Lite描画完了");
-        showBlock(block);
+
       } else {
-        console.error("to-mermaid ▶︎ unknown json format.");
-        throw new Error("Unknown JSON format");
+        console.error("to-mermaid ▶︎ Unknown JSON schema:", schema);
+        label.textContent += " - unknown shcema";
+        throw new Error("Unknown JSON shema");
       }
 
     }  /*else if (lang === "markdown") { // ==> markmap
@@ -223,13 +259,19 @@ async function createCodeBlock(lang, code) {
        window.markmap.Markmap.create(svg, { features }, root);
        showBlock(block);
          
-     } */else {
+     } */
+    else {
       console.error("to-mermaid ▶︎ unknown language", lang);
+      label.textContent += " - not supported";
       throw new Error("Unknown language");
     }
 
+    block.dataset.success = false; // backup
+    showBlock(block);
   } catch (e) {
-    container.removeChild(block);
+    //container.removeChild(block);
+    block.dataset.success = false; // backup
+    showBlock(block, false);
   }
 }
 

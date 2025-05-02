@@ -14,14 +14,26 @@
 <script src="https://cdn.jsdelivr.net/npm/vega-lite@6" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/vega-embed@6" defer></script>
 
-<!-- Markmap  
+<!-- Markmap
+  -->
 <script src="https://cdn.jsdelivr.net/npm/markmap-autoloader" defer></script>
- -->
-     
+
 <style>
 body {font-family: sans-serif; margin: 1rem;}
 a#bm {display: inline-block; padding: .2rem .4rem; background: #0069d9; color: #fff;
      text-decoration: none; border-radius: 4px;}
+
+.toggle-controls {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  z-index: 1000;
+} 
+
 #container > .block {
   border: 1px solid #ccc;
   border-radius: 0.3rem;
@@ -31,6 +43,17 @@ a#bm {display: inline-block; padding: .2rem .4rem; background: #0069d9; color: #
   opacity: 0;
   transition: background-color 1s ease, opacity 1s ease;
 }
+.block.hidden {
+  max-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none;
+  border: none !important;
+}
+
 .block-label {
   font-size: 0.9rem;
   color: #555;
@@ -66,10 +89,19 @@ a#bm {display: inline-block; padding: .2rem .4rem; background: #0069d9; color: #
   padding: 1rem;
   border-radius: 0.5rem;
 }
+
+.markmap > svg {
+  width: 100%;
+}
 </style>
 </head><body>
 
 <h1>To-Mermaid Viewer</h1>
+
+<div class="toggle-controls">
+  <label><input type="checkbox" id="show-failed"> エラーのあるブロックを表示</label>
+</div>
+
 使い方
   <ol>
   <li>このリンク→<a id="bm">🧜‍♀️To-Mermaid🧜‍♀️</a>をブックマークバーへドラッグしてブックマークレットを追加。</li>
@@ -84,6 +116,8 @@ a#bm {display: inline-block; padding: .2rem .4rem; background: #0069d9; color: #
 import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/+esm";
 mermaid.initialize({ startOnLoad: false });
 
+    //import { Markmap } from 'https://cdn.jsdelivr.net/npm/markmap-autoloader@0.14.4/dist/index.min.js';
+
 // 背景変更 debug用
 (function pastelize() {
   const t = new Date(document.lastModified).getTime();
@@ -94,6 +128,18 @@ mermaid.initialize({ startOnLoad: false });
 })();
 
 const version = "20250428-0000";
+
+
+document.getElementById("show-failed").addEventListener("change", function () {
+  const blocks = document.querySelectorAll(".block[data-success='false']");
+  blocks.forEach(block => {
+    if (this.checked) {
+      block.classList.remove("hidden");
+    } else {
+      block.classList.add("hidden");
+    }
+  });
+});
 
 // ブックマークレットのソースを取得して、リンクに設定
 async function getScriptText(url) {
@@ -200,7 +246,7 @@ async function createCodeBlock(lang, code) {
          console.error("rendaring error in mermaid");
         label.textContent += " - rendaring error";
         div.textContent = e;
-        div.style.whiteSpace = "pre";
+        div.style.whiteSpace = "pre-wrap";
 
          const elem = document.getElementById(id);
          if ( elem ) elem.remove();
@@ -219,7 +265,7 @@ async function createCodeBlock(lang, code) {
         json = JSON.parse(code);
       } catch (e) {
         console.error("to-mermaid:︎ failed to parse");
-        div.style.whiteSpase = "pre";
+        div.style.whiteSpase = "pre-wrap";
         div.textContent = code;
         label.textContent += " - failed to parse";
         throw new Error("Failed to parse JSON");
@@ -244,33 +290,53 @@ async function createCodeBlock(lang, code) {
         throw new Error("Unknown JSON shema");
       }
 
-    }  /*else if (lang === "markdown") { // ==> markmap
+    }  else if (lang === "markdown") { // ==> markmap
+
+      div.className = "markmap";
+      const pre = document.createElement("pre");
+      const codeEl = document.createElement("code");
+      codeEl.setAttribute("type", "text/markdown");
+      codeEl.textContent = code;
+      pre.appendChild(codeEl);
+      div.appendChild(pre);
+
+      markmap.autoLoader.render(div);
+
       
-     
-       const svg = document.createElement('svg');
-       svg.style.width = "600px";
-       svg.style.height = "500px";  // HACK
-       div.appendChild(svg);
+      //const svg = document.createElement('svg');
+      //svg.style.width = "600px";
+      //svg.style.height = "500px";  // HACK
+      //div.appendChild(svg);
+      //window.markmap.Markmap.create(svg, {}, code);
+
+      //const { Transformer } = window.markmap;
+      //const transformer = new Transformer();
+      //const { root, features } = transformer.transform(code);
+      //window.markmap.Markmap.create(svg, {features}, root);
+
+
+      //const mm = window.markmap.Markmap.create(svg, { features }, root);
+
+      //// 描画後に中心に再配置
+      //requestAnimationFrame(() => {
+      //  mm.fit(); // <- これがポイント
+      //});
          
-       const { Transformer } = window.markmap;
-       const transformer = new Transformer();
-       const { root, features } = transformer.transform(code);
-     
-       window.markmap.Markmap.create(svg, { features }, root);
-       showBlock(block);
-         
-     } */
-    else {
+    } else {
       console.error("to-mermaid ▶︎ unknown language", lang);
       label.textContent += " - not supported";
       throw new Error("Unknown language");
     }
 
-    block.dataset.success = false; // backup
+    block.dataset.success = true;
     showBlock(block);
   } catch (e) {
     //container.removeChild(block);
     block.dataset.success = false; // backup
+    const showFailed = document.getElementById("show-failed").checked;
+    if ( !showFailed ) {
+      block.classList.add("hidden");
+    }
     showBlock(block, false);
   }
 }

@@ -20,4 +20,8 @@
 - [*]bookmarklet側にバージョンを入れたい。初回に送ってチェックしたい。
 - [*]ページが切り替わったときに、ページタイトルを送りたい。送ってviewer側で表示したい。
 - エラーが有るMermaidグラフをその場で修正できるようにしたい。
-- plantuml, ditaa, markmap
+- [*] markmap
+- plantuml, ditaa, table
+- page毎に整理
+- pageで目次
+

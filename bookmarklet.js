@@ -22,7 +22,8 @@ javascript:(function () {
   const win = window.open(TARGET_URL, "toMermaid", opts);
   if (!win) { alert("to-mermaid: Popup blocked"); return; }
   
-  const SENT = new Set();   "// 既送信ブロック管理（lang|code ハッシュ）";
+  "// 既送信ブロック管理（lang|code ハッシュ）";
+  const SENT = new Set();
   
   "// SELECTOR に合致するコード片を収集";
   function collect () {
@@ -34,7 +35,8 @@ javascript:(function () {
       const code        = el.innerText;
       const key         = lang + "|" + code;
   
-      if (!SENT.has(key)) {                 "// 未送信なら結果に含める";
+      "// 未送信なら結果に含める";
+      if (!SENT.has(key)) {
         SENT.add(key);
         results.push({ lang, code });
       }

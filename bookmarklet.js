@@ -4,41 +4,93 @@ javascript:(function () {
     window.to_mermaid_obs.disconnect();
     delete window.to_mermaid_obs;
   }
-  
+  const DB_MODE = true; "// replaced by build script";
   const version = "BM_VERSION_PLACEHOLDER";
   
-  const TARGET_URL = "https://sou3ilow.github.io/to-mermaid/";
-  const SELECTOR   = 'code[class^="whitespace-pre! language-"] > span';  "// 抽出セレクタ";
-  const LANG_RE    = /language-([\w-]+)/;                             "// 言語名抽出 RegExp";
-  const TO         = TARGET_URL;  
+  const TARGET_URL = DB_MODE
+    ? "http://localhost:3000/to-mermaid/"
+    : "https://sou3ilow.github.io/to-mermaid/";
+  "// 抽出セレクタ";
+  const SELECTOR_CODE  = 'code[class^="whitespace-pre! language-"] > span';
+  const SELECTOR_TABLE = 'div[class*="_tableWrapper_"] > table';
+  const SELECTOR   = SELECTOR_CODE + ", " + SELECTOR_TABLE;
+  "// 言語名抽出 RegExp";
+  const LANG_RE    = /language-([\w-]+)/;
+  const TO         = TARGET_URL;
     
   const w = 600;
   const h = 600;
-  const x = window.screenX + 100;
-  const y = window.screenY + 100;
+  const x = window.screen.availWidth - w - 20;
+  const y = window.screenY + 20;
   
-  const opts = `width=${w},height=${h},left=${x},top=${y}`;
+  const opts = DB_MODE
+    ? ''
+    : `width=${w},height=${h},left=${x},top=${y}`;
   
   const win = window.open(TARGET_URL, "toMermaid", opts);
   if (!win) { alert("to-mermaid: Popup blocked"); return; }
   
   "// 既送信ブロック管理（lang|code ハッシュ）";
   const SENT = new Set();
-  
+
+  "// テーブル要素をシンプルなHTMLに変換";
+  function sanitizeTable(elem) {
+    
+    if (elem.nodeType === Node.TEXT_NODE) {
+      return document.createTextNode(elem.textContent);
+    }
+
+    if (elem.nodeType !== Node.ELEMENT_NODE) {
+      return null;
+    }
+
+    let tag = elem.tagName.toLowerCase();
+    if (tag === 'b') tag = 'strong';
+    if (tag === 'i') tag = 'em';
+
+    const keep = new Set(['table','thead','tbody','tr','th','td','strong','em','code','a']);
+    if (!keep.has(tag)) {
+      return [...elem.childNodes].map(sanitizeTable).filter(Boolean);
+    }
+
+    const newElem = document.createElement(tag);
+    if (tag === 'a' && elem.hasAttribute('href')) {
+      newElem.setAttribute('href', elem.getAttribute('href'));
+    }
+    [...elem.childNodes].forEach(child => { 
+      const sc = sanitizeTable(child);
+       if (sc) { 
+          newElem.appendChild(sc);
+       }
+    });
+    return newElem;
+  }
+   
   "// SELECTOR に合致するコード片を収集";
   function collect () {
     const results = [];
     document.querySelectorAll(SELECTOR).forEach(el => {
-      const parentClass = el.parentElement.className;
-      const match       = parentClass.match(LANG_RE);
-      const lang        = match ? match[1] : "unknown";
-      const code        = el.innerText;
-      const key         = lang + "|" + code;
-  
-      "// 未送信なら結果に含める";
-      if (!SENT.has(key)) {
-        SENT.add(key);
-        results.push({ lang, code });
+      if ( el.matches(SELECTOR_CODE ) ) { 
+
+        const parentClass = el.parentElement.className;
+        const match       = parentClass.match(LANG_RE);
+        const lang        = match ? match[1] : "unknown";
+        const code        = el.innerText;
+        const key         = lang + "|" + code;
+        "// 未送信なら結果に含める";
+        if (!SENT.has(key)) {
+          SENT.add(key);
+          results.push({ lang, code });
+        }
+      } else if ( el.matches(SELECTOR_TABLE) ) {
+        const lang = "html-table";
+        const code = sanitizeTable(el).outerHTML;
+        const key  = lang + "|" + code;
+        "// 未送信なら結果に含める";
+        if (!SENT.has(key)) {
+          SENT.add(key);
+          results.push({ lang, code });
+        }
       }
     });
     return results;

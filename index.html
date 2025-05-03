@@ -63,6 +63,19 @@ a#bm {display: inline-block; padding: .2rem .4rem; background: #0069d9; color: #
   margin-top: 0.5rem;
 }
 
+.block[data-lang=html-table] table {
+  font-size: 90%;
+}
+.block[data-lang=html-table] th,
+.block[data-lang=html-table] td {
+  text-align: left;
+  padding: 10px 24px 10px 0px;
+}
+
+.block[data-lang=html-table] tbody td {
+  border-top: 1px solid #ddd;
+}
+
 #container > .pagetitle {
   border-radius: 0.3rem;
   margin: 1rem 0;
@@ -124,7 +137,7 @@ mermaid.initialize({ startOnLoad: false });
   let hue = (t / 6e4) % 360;
   hue = (hue * 121 + 47) % 360;
   document.body.style.background = `hsl(${hue}, 70%, 88%)`;
-  console.log("to-mermaid ◆ lastModified =", document.lastModified, "→ hue", hue);
+  console.log("to-mermaid: backgroud changed lastModified =", document.lastModified, "→ hue", hue);
 })();
 
 const version = "20250502-2222";
@@ -149,8 +162,9 @@ async function getScriptText(url) {
 }
 getScriptText('./bookmarklet.js').then(code => {
   const bm_code = "javascript:(function(){" +
-    code.replace("BM_VERSION_PLACEHOLDER", version) + 
-    "})()";
+    code.replace("BM_VERSION_PLACEHOLDER", version)
+        .repalce("DB_MODE = true", "DB_MODE = false")
+    + "})()";
   const bm = document.getElementById("bm");
   bm.href = bm_code;
 });
@@ -232,31 +246,38 @@ async function createCodeBlock(lang, code) {
     ]
   */
 
-
   try {
-    if (lang === "mermaid") {
+    if (lang === "html-table") {
+
+      div.innerHTML = code;
+      div.className = "html-table";
+      console.info("to-mermaid: html-table rendered");
+
+    } else if (lang === "mermaid") {
     
       // renderを呼ぶとDOMに一時的なエレメントを作成し、できたsvgが返される。
-      // 途中で失敗すると、DOMに一時エレメントが残ったままになるので、IDをユニークにして削除処理する。
-       const id = `mermaid-${mermaidIdCount++}`;
-       try {
-         const { svg } = await mermaid.render(id, code)
-         div.innerHTML = svg;
-       } catch (e) {
-         console.error("rendaring error in mermaid");
+      const id = `mermaid-${mermaidIdCount++}`;
+      try {
+        const { svg } = await mermaid.render(id, code)
+        div.innerHTML = svg;
+        console.info("to-mermaid: mermaid rendered");
+      } catch (e) {
+        console.error("to-mermaid: mermaid rendaring error");
         label.textContent += " - rendaring error";
         div.textContent = e;
         div.style.whiteSpace = "pre-wrap";
 
-         const elem = document.getElementById(id);
-         if ( elem ) elem.remove();
-         throw e; // to remove block
-       }
+      // 途中で失敗すると、DOMに一時エレメントが残ったままになるので、IDで検索して削除
+        const elem = document.getElementById(id);
+        if (elem) elem.remove();
+        throw e;
+      }
       
     } else if (lang === "dot") {
       const viz = new Viz();
       const elem = await viz.renderSVGElement(code);
       div.appendChild(elem);
+      console.info("to-mermaid: dot rendered");
 
     } else if (lang === "json") {
 
@@ -264,7 +285,7 @@ async function createCodeBlock(lang, code) {
       try {
         json = JSON.parse(code);
       } catch (e) {
-        console.error("to-mermaid:︎ failed to parse");
+        console.error("to-mermaid:︎ failed to parse json");
         div.style.whiteSpase = "pre-wrap";
         div.textContent = code;
         label.textContent += " - failed to parse";
@@ -283,9 +304,10 @@ async function createCodeBlock(lang, code) {
         label.textContent += " - vega-lite";
         div.textContent = code;
         await vegaEmbed(div, json, {});
+        console.info("to-mermaid: vega-lite rendered");
 
       } else {
-        console.error("to-mermaid ▶︎ Unknown JSON schema:", schema);
+        console.error("to-mermaid:︎ Unknown JSON schema,", schema);
         label.textContent += " - unknown shcema";
         throw new Error("Unknown JSON shema");
       }
@@ -302,29 +324,10 @@ async function createCodeBlock(lang, code) {
       div.appendChild(pre);
 
       markmap.autoLoader.render(div);
-
-      
-      //const svg = document.createElement('svg');
-      //svg.style.width = "600px";
-      //svg.style.height = "500px";  // HACK
-      //div.appendChild(svg);
-      //window.markmap.Markmap.create(svg, {}, code);
-
-      //const { Transformer } = window.markmap;
-      //const transformer = new Transformer();
-      //const { root, features } = transformer.transform(code);
-      //window.markmap.Markmap.create(svg, {features}, root);
-
-
-      //const mm = window.markmap.Markmap.create(svg, { features }, root);
-
-      //// 描画後に中心に再配置
-      //requestAnimationFrame(() => {
-      //  mm.fit(); // <- これがポイント
-      //});
+      console.info("to-mermaid: markmap rendered");
          
     } else {
-      console.error("to-mermaid ▶︎ unknown language", lang);
+      console.error("to-mermaid:︎ unknown language", lang);
       label.textContent += " - not supported";
       throw new Error("Unknown language");
     }
@@ -354,24 +357,24 @@ window.addEventListener("message", ev => {
 
   if (type === "bmVersion") {
     const bmVersion = ev.data?.version;
-    console.log("to-mermaid ◆ 受信 bmVersion", bmVersion);
+    console.log("to-mermaid: message recieved: bmVersion", bmVersion);
     if (bmVersion != version) {
-      createBlock("message", `Bookmarkletを更新してください。現在：${version} BM:${bmVersion}`);
+      createBlock("message", `Bookmarkletを更新してください。viewer：${version} bookmarklet:${bmVersion}`);
     }
   } else if (type === "pageMoved") {
     const title = ev.data?.title;
-    console.log("to-mermaid ◆ 受信 pageMoved", title);
+    console.log("to-mermaid: message recieved: pageMoved", title);
     createBlock("pagetitle", title);
        
   } else if (type === "codeBlocks") {
     const blocks = ev.data?.blocks;
     if (!blocks) return;
-    console.log("to-mermaid ◆ 受信 codeBlocks", blocks.length);
+    console.log("to-mermaid: message recieved: codeBlocks", blocks.length);
     blocks.forEach(({ lang, code }) => {
       createCodeBlock(lang, code);
     });
   } else {
-    console.log("to-mermaid ◆ 受信 unknown type", type);
+    console.error("to-mermaid: message recieved: unknown type", type);
   }
 });
 </script>

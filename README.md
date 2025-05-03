@@ -21,7 +21,10 @@
 - [*]ページが切り替わったときに、ページタイトルを送りたい。送ってviewer側で表示したい。
 - エラーが有るMermaidグラフをその場で修正できるようにしたい。
 - [*] markmap
-- plantuml, ditaa, table
+- [*]table
+- plantuml, ditaa
 - page毎に整理
 - pageで目次
+- block転送タイミング
+
 

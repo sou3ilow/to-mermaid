@@ -162,8 +162,7 @@ async function getScriptText(url) {
 }
 getScriptText('./bookmarklet.js').then(code => {
   const bm_code = "javascript:(function(){" +
-    code.replace("BM_VERSION_PLACEHOLDER", version)
-        .repalce("DB_MODE = true", "DB_MODE = false")
+    code.replace("BM_VERSION_PLACEHOLDER", version).replace("DB_MODE = true", "DB_MODE = false")
     + "})()";
   const bm = document.getElementById("bm");
   bm.href = bm_code;

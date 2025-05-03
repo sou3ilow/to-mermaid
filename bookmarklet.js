@@ -60,8 +60,10 @@ javascript:(function () {
     [...elem.childNodes].forEach(child => { 
       const sc = sanitizeTable(child);
        if (sc) { 
-          newElem.appendChild(sc);
-       }
+        (sc instanceof Node ? [sc] : sc).forEach(c => {
+          newElem.appendChild(c);
+        });
+      }
     });
     return newElem;
   }
@@ -83,13 +85,17 @@ javascript:(function () {
           results.push({ lang, code });
         }
       } else if ( el.matches(SELECTOR_TABLE) ) {
-        const lang = "html-table";
-        const code = sanitizeTable(el).outerHTML;
-        const key  = lang + "|" + code;
-        "// 未送信なら結果に含める";
-        if (!SENT.has(key)) {
-          SENT.add(key);
-          results.push({ lang, code });
+        try {
+          const lang = "html-table";
+          const code = sanitizeTable(el).outerHTML;
+          const key  = lang + "|" + code;
+          "// 未送信なら結果に含める";
+          if (!SENT.has(key)) {
+            SENT.add(key);
+            results.push({ lang, code });
+          }
+        } catch (e) {
+          console.error("to-mermaid: error in sanitizing table", e);
         }
       }
     });

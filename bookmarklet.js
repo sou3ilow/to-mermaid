@@ -50,7 +50,10 @@ javascript:(function () {
 
     const keep = new Set(['table','thead','tbody','tr','th','td','strong','em','code','a']);
     if (!keep.has(tag)) {
-      return [...elem.childNodes].map(sanitizeTable).filter(Boolean);
+      return [...elem.childNodes]
+      .map(sanitizeTable)
+      .flat()
+      .filter(Boolean);
     }
 
     const newElem = document.createElement(tag);
